@@ -215,18 +215,25 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredTools.map((tool) => (
-              <Card key={tool.id} className="hover:shadow-lg transition-shadow">
-                <div className="aspect-video bg-gray-200 rounded-t-lg relative overflow-hidden">
+              <Card key={tool.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                <div className="aspect-video bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
                   <img
-                    src={tool.images[0] || "/placeholder.svg"}
+                    src="/futuristic-ai-interface.png"
                     alt={tool.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover opacity-80"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-purple-800/50"></div>
                   <div className="absolute top-3 left-3 flex gap-2">
-                    <Badge className="bg-black text-white">{tool.badge}</Badge>
-                    <Badge variant="default" className="bg-blue-600">
+                    <Badge className="bg-black text-white text-xs px-2 py-1">{tool.badge}</Badge>
+                    <Badge variant="default" className="bg-blue-600 text-white text-xs px-2 py-1">
                       {tool.type}
                     </Badge>
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <div className="flex items-center gap-2 text-white">
+                      <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center text-xs">AI</div>
+                      <span className="text-sm font-medium">{tool.name}</span>
+                    </div>
                   </div>
                 </div>
                 <CardContent className="p-6">
@@ -237,7 +244,7 @@ export default function HomePage() {
                   <p className="text-sm text-gray-600 mb-3">
                     {tool.category} • {tool.subcategory}
                   </p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium">{tool.rating}</span>
@@ -245,7 +252,14 @@ export default function HomePage() {
                     </div>
                     <div className="text-sm text-gray-600">Starting at {tool.pricing.startingPrice}</div>
                   </div>
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {tool.tags.slice(0, 2).map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
                     <Link href={`/tool/${tool.id}`} className="flex-1">
                       <Button size="sm" className="w-full">
                         View tool
