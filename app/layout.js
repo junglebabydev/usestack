@@ -1,10 +1,12 @@
-import type React from "react"
-import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
-export const metadata: Metadata = {
+/**
+ * Metadata configuration for the application
+ * @type {import('next').Metadata}
+ */
+export const metadata = {
   title: "obase - Discover the Best AI Tools & Agents",
   description:
     "Find, compare, and choose from thousands of AI-powered tools and agents to supercharge your workflow and boost productivity. Discover curated AI stacks for every use case.",
@@ -52,14 +54,16 @@ export const metadata: Metadata = {
   verification: {
     google: "your-google-verification-code",
   },
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+/**
+ * Root layout component for the application
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to render
+ * @returns {React.ReactElement} Root HTML structure
+ */
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>

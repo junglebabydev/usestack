@@ -231,26 +231,25 @@ export default function ToolDetailPage({ params }) {
 
           {/* Right Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Trending Tools */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
+            <Card className="border-gray-200 shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <TrendingUp className="w-5 h-5 text-gray-600" />
                   Trending Tools
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-0">
                 {trendingTools.map((tool, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-xs font-medium">
+                  <div key={index} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
                       {index + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-gray-900 truncate">{tool.name}</p>
-                      <p className="text-xs text-gray-500">{tool.category}</p>
+                      <p className="font-medium text-sm text-gray-900 truncate leading-tight">{tool.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{tool.category}</p>
                       <div className="flex items-center gap-1 mt-1">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs text-gray-600">{tool.rating}</span>
+                        <span className="text-xs font-medium text-gray-700">{tool.rating}</span>
                       </div>
                     </div>
                   </div>
@@ -258,18 +257,17 @@ export default function ToolDetailPage({ params }) {
               </CardContent>
             </Card>
 
-            {/* Latest News */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
+            <Card className="border-gray-200 shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <Clock className="w-5 h-5 text-gray-600" />
                   Latest News
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-0">
                 {latestNews.map((news, index) => (
-                  <div key={index} className="space-y-1">
-                    <p className="font-medium text-sm text-gray-900">{news.title}</p>
+                  <div key={index} className="p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <p className="font-medium text-sm text-gray-900 leading-tight mb-1">{news.title}</p>
                     <p className="text-xs text-gray-500">{news.date}</p>
                   </div>
                 ))}
