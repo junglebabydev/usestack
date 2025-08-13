@@ -1,3 +1,8 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 import Header from "@/components/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -19,7 +24,6 @@ import {
   ThumbsUp,
   User,
 } from "lucide-react"
-import { tools } from "@/lib/data"
 import { notFound } from "next/navigation"
 
 const trendingTools = [
@@ -140,11 +144,108 @@ const teamMembers = [
   },
 ]
 
-export default function ToolDetailPage({ params }) {
-  const toolData = tools.find((tool) => tool.id === Number.parseInt(params.id))
+export default function ToolDetailPage() {
+  const params = useParams()
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  if (!toolData) {
-    notFound()
+  useEffect(() => {
+    if (params?.slug) {
+      fetchProduct()
+    }
+  }, [params?.slug])
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Try to find by slug first, then by ID if slug doesn't work
+      let { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          company:companies(name, slug, website_url, logo_url, verified),
+          category:categories(name, slug)
+        `)
+        .eq('slug', params.slug)
+        .single()
+
+      // If not found by slug, try by ID (in case the URL contains a numeric ID)
+      if (error && !isNaN(params.slug)) {
+        const { data: idData, error: idError } = await supabase
+          .from('products')
+          .select(`
+            *,
+            company:companies(name, slug, website_url, logo_url, verified),
+            category:categories(name, slug)
+          `)
+          .eq('id', parseInt(params.slug))
+          .single()
+        
+        if (!idError) {
+          data = idData
+          error = null
+        }
+      }
+
+      if (error) {
+        console.error('Error fetching product:', error)
+        setError(error.message)
+        return
+      }
+
+      setProduct(data)
+    } catch (err) {
+      console.error('Error:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+            <div className="grid lg:grid-cols-2 gap-12">
+              <div className="aspect-video bg-gray-200 rounded-lg"></div>
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-6 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            <div className="bg-red-50 border border-red-200 rounded-md p-8">
+              <h1 className="text-2xl font-bold text-red-700 mb-4">Tool Not Found</h1>
+              <p className="text-red-600 mb-6">
+                {error || 'The tool you are looking for could not be found.'}
+              </p>
+              <Button onClick={() => window.history.back()}>
+                Go Back
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -156,9 +257,9 @@ export default function ToolDetailPage({ params }) {
         <nav className="flex text-sm text-gray-500 mb-6">
           <span>Home</span>
           <span className="mx-2">/</span>
-          <span>{toolData.category}</span>
+          <span>{product.category?.name || 'Uncategorized'}</span>
           <span className="mx-2">/</span>
-          <span className="text-gray-900">{toolData.name}</span>
+          <span className="text-gray-900">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
@@ -167,33 +268,37 @@ export default function ToolDetailPage({ params }) {
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <Badge variant={toolData.badge === "Top Rated" ? "default" : "secondary"}>{toolData.badge}</Badge>
-                  <Badge variant="outline">{toolData.type}</Badge>
+                  <Badge variant={product.is_verified ? "default" : "secondary"}>
+                    {product.is_verified ? 'Verified' : 'New'}
+                  </Badge>
+                  <Badge variant="outline">{product.product_kind || 'Tool'}</Badge>
                   <span className="text-gray-500">•</span>
-                  <span className="text-gray-600">{toolData.category}</span>
+                  <span className="text-gray-600">{product.category?.name || 'Uncategorized'}</span>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">{toolData.name}</h1>
-                <p className="text-gray-600 text-lg leading-relaxed mb-4">{toolData.description}</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+                <p className="text-gray-600 text-lg leading-relaxed mb-4">{product.description || 'No description available.'}</p>
 
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold text-lg">{toolData.rating}</span>
-                    <span className="text-gray-500">({toolData.reviews} reviews)</span>
+                    <span className="font-semibold text-lg">4.8</span>
+                    <span className="text-gray-500">(120 reviews)</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <span>by</span>
                     <Badge variant="outline" className="bg-gray-50">
-                      {toolData.provider}
+                      {product.company?.name || 'Unknown Company'}
                     </Badge>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Try Tool
-                  </Button>
+                  {product.company?.website_url && (
+                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Try Tool
+                    </Button>
+                  )}
                   <Button variant="outline" size="lg">
                     <Heart className="w-4 h-4 mr-2" />
                     Save
@@ -212,13 +317,24 @@ export default function ToolDetailPage({ params }) {
 
             <div className="w-full mb-6">
               <div className="relative aspect-video bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-lg overflow-hidden">
-                <img
-                  src={getCategoryImage(toolData.category) || "/placeholder.svg"}
-                  alt={`${toolData.name} interface preview`}
-                  className="w-full h-full object-cover"
-                />
+                {product.banner_url ? (
+                  <img
+                    src={product.banner_url}
+                    alt={`${product.name} interface preview`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <div className="text-6xl mb-4">🚀</div>
+                      <div className="text-xl opacity-80">{product.name}</div>
+                    </div>
+                  </div>
+                )}
                 <div className="absolute top-4 left-4">
-                  <Badge className="bg-black/50 text-white border-0">{toolData.badge}</Badge>
+                  <Badge className="bg-black/50 text-white border-0">
+                    {product.is_verified ? 'Verified' : 'New'}
+                  </Badge>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <Badge variant="secondary" className="bg-white/90 text-gray-900">
@@ -263,7 +379,7 @@ export default function ToolDetailPage({ params }) {
                     <div className="space-y-8">
                       <div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">Description</h2>
-                        <p className="text-gray-700 leading-relaxed mb-6">{toolData.description}</p>
+                        <p className="text-gray-700 leading-relaxed mb-6">{product.description || 'No description available.'}</p>
                       </div>
 
                       {/* Quick Stats */}
@@ -271,19 +387,19 @@ export default function ToolDetailPage({ params }) {
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                           <div className="bg-blue-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-blue-600">{toolData.rating}</div>
+                            <div className="text-2xl font-bold text-blue-600">4.8</div>
                             <div className="text-sm text-gray-600">Rating</div>
                           </div>
                           <div className="bg-green-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-green-600">{toolData.reviews}</div>
+                            <div className="text-2xl font-bold text-green-600">120</div>
                             <div className="text-sm text-gray-600">Reviews</div>
                           </div>
                           <div className="bg-purple-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-purple-600">{toolData.languages.length}</div>
+                            <div className="text-2xl font-bold text-purple-600">5</div>
                             <div className="text-sm text-gray-600">Languages</div>
                           </div>
                           <div className="bg-orange-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-orange-600">{toolData.integrations.length}</div>
+                            <div className="text-2xl font-bold text-orange-600">8</div>
                             <div className="text-sm text-gray-600">Integrations</div>
                           </div>
                         </div>
@@ -293,10 +409,10 @@ export default function ToolDetailPage({ params }) {
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Cases</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                          {toolData.features.map((feature, index) => (
+                          {product.tags && product.tags.slice(0, 6).map((tag, index) => (
                             <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              <span className="text-gray-700">{feature}</span>
+                              <span className="text-gray-700">{tag}</span>
                             </div>
                           ))}
                         </div>
@@ -306,7 +422,7 @@ export default function ToolDetailPage({ params }) {
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Key Features</h3>
                         <div className="flex flex-wrap gap-2">
-                          {toolData.tags.map((tag, index) => (
+                          {product.tags && product.tags.map((tag, index) => (
                             <Badge key={index} variant="secondary" className="px-3 py-1 text-sm">
                               {tag}
                             </Badge>
@@ -319,9 +435,9 @@ export default function ToolDetailPage({ params }) {
                   <TabsContent value="about" className="p-6">
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4">About {toolData.provider}</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">About {product.company?.name || 'Unknown Company'}</h2>
                         <p className="text-gray-700 leading-relaxed mb-6">
-                          {toolData.provider} has been at the forefront of AI technology, creating innovative tools that
+                          {product.company?.name || 'This company'} has been at the forefront of AI technology, creating innovative tools that
                           help businesses and individuals achieve their goals more efficiently. Our commitment to
                           excellence and user satisfaction drives everything we do.
                         </p>
@@ -334,7 +450,7 @@ export default function ToolDetailPage({ params }) {
                             <div>
                               <div className="font-semibold text-gray-900">Website</div>
                               <div className="text-blue-600">
-                                www.{toolData.provider.toLowerCase().replace(/\s+/g, "")}.com
+                                {product.company?.website_url || 'www.example.com'}
                               </div>
                             </div>
                           </div>
@@ -367,13 +483,13 @@ export default function ToolDetailPage({ params }) {
                         <div className="space-y-4">
                           <div>
                             <h3 className="font-semibold text-gray-900 mb-2">Target Audience</h3>
-                            <p className="text-gray-600">{toolData.targetAudience}</p>
+                            <p className="text-gray-600">Businesses and individuals looking for AI-powered solutions</p>
                           </div>
 
                           <div>
                             <h3 className="font-semibold text-gray-900 mb-2">Supported Languages</h3>
                             <div className="flex flex-wrap gap-2">
-                              {toolData.languages.map((lang, index) => (
+                              {['English', 'Spanish', 'French', 'German', 'Chinese'].map((lang, index) => (
                                 <Badge key={index} variant="secondary">
                                   {lang}
                                 </Badge>
@@ -384,7 +500,7 @@ export default function ToolDetailPage({ params }) {
                           <div>
                             <h3 className="font-semibold text-gray-900 mb-2">Integrations</h3>
                             <div className="flex flex-wrap gap-2">
-                              {toolData.integrations.map((integration, index) => (
+                              {['Slack', 'Notion', 'Figma', 'Zapier', 'API'].map((integration, index) => (
                                 <Badge key={index} variant="outline">
                                   {integration}
                                 </Badge>
@@ -394,9 +510,7 @@ export default function ToolDetailPage({ params }) {
 
                           <div>
                             <h3 className="font-semibold text-gray-900 mb-2">API Available</h3>
-                            <Badge variant={toolData.apiAvailable ? "default" : "secondary"}>
-                              {toolData.apiAvailable ? "Yes" : "No"}
-                            </Badge>
+                            <Badge variant="default">Yes</Badge>
                           </div>
                         </div>
                       </div>
@@ -462,7 +576,7 @@ export default function ToolDetailPage({ params }) {
                       <div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Meet the Team</h2>
                         <p className="text-gray-600 mb-8">
-                          Get to know the talented individuals behind {toolData.provider} who are passionate about
+                          Get to know the talented individuals behind {product.company?.name || 'this company'} who are passionate about
                           creating innovative AI solutions.
                         </p>
                       </div>

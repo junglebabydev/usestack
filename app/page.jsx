@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Search, Star, ArrowRight } from "lucide-react"
 import Link from "next/link"
-import { aiStacks, categories, stats, popularSearches, tools } from "@/lib/data"
+import { aiStacks, categories, stats, popularSearches } from "@/lib/data"
+import FeaturedProducts from "@/components/featured-products"
 
 export default function HomePage() {
-  const featuredTools = tools.slice(0, 6)
   const browseCategoriesData = categories.slice(0, 6)
 
   return (
@@ -209,64 +209,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {featuredTools.map((tool) => (
-              <Card key={tool.id} className="hover:shadow-lg transition-shadow overflow-hidden h-full flex flex-col">
-                <div className="aspect-video bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
-                  <img
-                    src="/futuristic-ai-interface.png"
-                    alt={tool.name}
-                    className="w-full h-full object-cover opacity-80"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-purple-800/50"></div>
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <Badge className="bg-black text-white text-xs px-2 py-1">{tool.badge}</Badge>
-                    <Badge variant="default" className="bg-blue-600 text-white text-xs px-2 py-1">
-                      {tool.type}
-                    </Badge>
-                  </div>
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <div className="flex items-center gap-2 text-white">
-                      <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center text-xs">AI</div>
-                      <span className="text-sm font-medium">{tool.name}</span>
-                    </div>
-                  </div>
-                </div>
-                <CardContent className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-gray-500">{tool.provider}</span>
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">{tool.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {tool.category} • {tool.subcategory}
-                  </p>
-                  <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{tool.rating}</span>
-                    <span className="text-sm text-gray-500">({tool.reviews})</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4 flex-1">
-                    {tool.tags.slice(0, 2).map((tag, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="text-xs px-3 py-1 min-w-[80px] justify-center truncate"
-                      >
-                        #{tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 mt-auto">
-                    <Link href={`/tool/${tool.id}`} className="flex-1">
-                      <Button size="sm" className="w-full">
-                        View tool
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <FeaturedProducts />
         </div>
       </section>
     </div>
