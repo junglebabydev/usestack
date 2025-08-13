@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, Star, ArrowRight } from "lucide-react"
+import { Search, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { aiStacks, categories, stats, popularSearches } from "@/lib/data"
 import FeaturedProducts from "@/components/featured-products"
@@ -175,10 +175,6 @@ export default function HomePage() {
                             >
                               {tool.type}
                             </Badge>
-                            <div className="flex items-center gap-1">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{tool.rating}</span>
-                            </div>
                           </div>
                         </div>
                       </div>
@@ -209,7 +205,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <FeaturedProducts />
+          <FeaturedProducts showRating={false} />
         </div>
       </section>
     </div>

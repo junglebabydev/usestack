@@ -63,9 +63,11 @@ export default function Header() {
               )}
             </div>
 
+            {/** Newsletter temporarily hidden. Keep markup commented for easy re-enable.
             <Link href="/newsletter" className="text-gray-700 hover:text-gray-900 font-medium">
               Newsletter
             </Link>
+            */}
           </nav>
 
           {/* Action Buttons */}

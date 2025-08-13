@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Star, ExternalLink, Building2, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ showRating = true }) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -162,12 +162,14 @@ export default function FeaturedProducts() {
               {product.category?.name || 'Uncategorized'}
             </p>
             
-            {/* Rating (placeholder for now) */}
-            <div className="flex items-center gap-1 mb-4">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">4.8</span>
-              <span className="text-sm text-gray-500">(120)</span>
-            </div>
+            {/* Rating (optional) */}
+            {showRating && (
+              <div className="flex items-center gap-1 mb-4">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span className="font-medium">4.8</span>
+                <span className="text-sm text-gray-500">(120)</span>
+              </div>
+            )}
             
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4 flex-1">

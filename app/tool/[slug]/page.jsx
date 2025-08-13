@@ -149,6 +149,8 @@ export default function ToolDetailPage() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showCopiedHint, setShowCopiedHint] = useState(false)
+  const [activeSocialPlatform, setActiveSocialPlatform] = useState('x')
 
   useEffect(() => {
     if (params?.slug) {
@@ -202,6 +204,19 @@ export default function ToolDetailPage() {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleShare = async () => {
+    try {
+      const currentUrl = window.location.href
+      await navigator.clipboard.writeText(currentUrl)
+      setShowCopiedHint(true)
+      setTimeout(() => setShowCopiedHint(false), 2000) // Hide hint after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy link:', err)
+      // Fallback: show a simple alert
+      alert('Failed to copy link. Please copy the URL manually.')
     }
   }
 
@@ -279,16 +294,11 @@ export default function ToolDetailPage() {
                 <p className="text-gray-600 text-lg leading-relaxed mb-4">{product.description || 'No description available.'}</p>
 
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold text-lg">4.8</span>
-                    <span className="text-gray-500">(120 reviews)</span>
-                  </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <span>by</span>
-                    <Badge variant="outline" className="bg-gray-50">
+                    <span className="text-gray-900 font-medium">
                       {product.company?.name || 'Unknown Company'}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
 
@@ -303,10 +313,17 @@ export default function ToolDetailPage() {
                     <Heart className="w-4 h-4 mr-2" />
                     Save
                   </Button>
-                  <Button variant="outline" size="lg">
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share
-                  </Button>
+                  <div className="relative">
+                    <Button variant="outline" size="lg" onClick={handleShare}>
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share
+                    </Button>
+                    {showCopiedHint && (
+                      <div className="absolute -bottom-8 left-0 bg-green-100 text-green-800 text-xs px-2 py-1 rounded whitespace-nowrap">
+                        ✓ Link copied!
+                      </div>
+                    )}
+                  </div>
                   <Button variant="outline" size="lg">
                     <Flag className="w-4 h-4 mr-2" />
                     Report
@@ -347,14 +364,8 @@ export default function ToolDetailPage() {
             <div className="mt-8">
               {/* Tabs */}
               <div className="bg-white rounded-lg shadow-sm border">
-                <Tabs defaultValue="overview" className="w-full">
+                <Tabs defaultValue="about" className="w-full">
                   <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0">
-                    <TabsTrigger
-                      value="overview"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"
-                    >
-                      Overview
-                    </TabsTrigger>
                     <TabsTrigger
                       value="about"
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"
@@ -375,62 +386,7 @@ export default function ToolDetailPage() {
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="overview" className="p-6">
-                    <div className="space-y-8">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Description</h2>
-                        <p className="text-gray-700 leading-relaxed mb-6">{product.description || 'No description available.'}</p>
-                      </div>
 
-                      {/* Quick Stats */}
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                          <div className="bg-blue-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-blue-600">4.8</div>
-                            <div className="text-sm text-gray-600">Rating</div>
-                          </div>
-                          <div className="bg-green-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-green-600">120</div>
-                            <div className="text-sm text-gray-600">Reviews</div>
-                          </div>
-                          <div className="bg-purple-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-purple-600">5</div>
-                            <div className="text-sm text-gray-600">Languages</div>
-                          </div>
-                          <div className="bg-orange-50 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-orange-600">8</div>
-                            <div className="text-sm text-gray-600">Integrations</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Use Cases */}
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Cases</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                          {product.tags && product.tags.slice(0, 6).map((tag, index) => (
-                            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              <span className="text-gray-700">{tag}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Key Features as Pills */}
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Key Features</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {product.tags && product.tags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="px-3 py-1 text-sm">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
 
                   <TabsContent value="about" className="p-6">
                     <div className="space-y-6">
@@ -443,133 +399,147 @@ export default function ToolDetailPage() {
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <Globe className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <div className="font-semibold text-gray-900">Website</div>
-                              <div className="text-blue-600">
-                                {product.company?.website_url || 'www.example.com'}
-                              </div>
-                            </div>
-                          </div>
+                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                         <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
+                           <Globe className="w-8 h-8 text-blue-600 mb-2" />
+                           <div className="font-semibold text-gray-900 text-sm mb-1">Website</div>
+                           <div className="text-blue-600 text-sm">
+                             {product.company?.website_url ? (
+                               <a href={product.company.website_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                 {product.company.website_url.replace(/^https?:\/\//, '')}
+                               </a>
+                             ) : (
+                               'www.example.com'
+                             )}
+                           </div>
+                         </div>
 
-                          <div className="flex items-center gap-3">
-                            <Calendar className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <div className="font-semibold text-gray-900">Founded in</div>
-                              <div className="text-gray-600">2019</div>
-                            </div>
-                          </div>
+                         <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
+                           <Calendar className="w-8 h-8 text-green-600 mb-2" />
+                           <div className="font-semibold text-gray-900 text-sm mb-1">Founded in</div>
+                           <div className="text-gray-600 text-sm">2019</div>
+                         </div>
 
-                          <div className="flex items-center gap-3">
-                            <MapPin className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <div className="font-semibold text-gray-900">Location</div>
-                              <div className="text-gray-600">San Francisco, CA</div>
-                            </div>
-                          </div>
+                         <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
+                           <MapPin className="w-8 h-8 text-red-600 mb-2" />
+                           <div className="font-semibold text-gray-900 text-sm mb-1">Location</div>
+                           <div className="text-gray-600 text-sm">San Francisco, CA</div>
+                         </div>
 
-                          <div className="flex items-center gap-3">
-                            <Users className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <div className="font-semibold text-gray-900">Team Size</div>
-                              <div className="text-gray-600">50-100 employees</div>
-                            </div>
-                          </div>
-                        </div>
+                         <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
+                           <Users className="w-8 h-8 text-purple-600 mb-2" />
+                           <div className="font-semibold text-gray-900 text-sm mb-1">Team Size</div>
+                           <div className="text-gray-600 text-sm">50-100 employees</div>
+                         </div>
 
-                        <div className="space-y-4">
-                          <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Target Audience</h3>
-                            <p className="text-gray-600">Businesses and individuals looking for AI-powered solutions</p>
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Supported Languages</h3>
-                            <div className="flex flex-wrap gap-2">
-                              {['English', 'Spanish', 'French', 'German', 'Chinese'].map((lang, index) => (
-                                <Badge key={index} variant="secondary">
-                                  {lang}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Integrations</h3>
-                            <div className="flex flex-wrap gap-2">
-                              {['Slack', 'Notion', 'Figma', 'Zapier', 'API'].map((integration, index) => (
-                                <Badge key={index} variant="outline">
-                                  {integration}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">API Available</h3>
-                            <Badge variant="default">Yes</Badge>
-                          </div>
-                        </div>
-                      </div>
+                         <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
+                           <TrendingUp className="w-8 h-8 text-orange-600 mb-2" />
+                           <div className="font-semibold text-gray-900 text-sm mb-1">Funding</div>
+                           <div className="text-gray-600 text-sm">Series B</div>
+                         </div>
+                       </div>
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="social-feeds" className="p-6">
-                    <div className="space-y-8">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Social Feeds</h2>
+                                     <TabsContent value="social-feeds" className="p-6">
+                     <div className="space-y-8">
+                       <div>
+                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Social Feeds</h2>
 
-                        {socialFeeds.map((platform, platformIndex) => (
-                          <div key={platformIndex} className="mb-8">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                              <MessageSquare className="w-5 h-5" />
-                              {platform.platform}
-                            </h3>
+                         {/* Platform Pills */}
+                         <div className="flex gap-2 mb-6">
+                           <button
+                             onClick={() => setActiveSocialPlatform('x')}
+                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                               activeSocialPlatform === 'x'
+                                 ? 'bg-blue-600 text-white'
+                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                             }`}
+                           >
+                             X (Twitter)
+                           </button>
+                           <button
+                             onClick={() => setActiveSocialPlatform('linkedin')}
+                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                               activeSocialPlatform === 'linkedin'
+                                 ? 'bg-blue-600 text-white'
+                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                             }`}
+                           >
+                             LinkedIn
+                           </button>
+                         </div>
 
-                            <div className="space-y-4">
-                              {platform.posts.map((post, postIndex) => (
-                                <div key={postIndex} className="bg-gray-50 p-4 rounded-lg">
-                                  <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                      {post.user.charAt(1).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <span className="font-semibold text-gray-900">{post.user}</span>
-                                        <span className="text-gray-500 text-sm">• {post.time}</span>
-                                      </div>
-                                      <p className="text-gray-700 mb-3">{post.content}</p>
-                                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                                        <div className="flex items-center gap-1">
-                                          <ThumbsUp className="w-4 h-4" />
-                                          <span>{post.likes}</span>
-                                        </div>
-                                        {post.retweets && (
-                                          <div className="flex items-center gap-1">
-                                            <Share2 className="w-4 h-4" />
-                                            <span>{post.retweets}</span>
-                                          </div>
-                                        )}
-                                        {post.comments && (
-                                          <div className="flex items-center gap-1">
-                                            <MessageSquare className="w-4 h-4" />
-                                            <span>{post.comments}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </TabsContent>
+                         {/* X (Twitter) Content */}
+                         {activeSocialPlatform === 'x' && (
+                           <div className="space-y-4">
+                             {socialFeeds.find(p => p.platform === 'X (Twitter)')?.posts.map((post, postIndex) => (
+                               <div key={postIndex} className="bg-gray-50 p-4 rounded-lg">
+                                 <div className="flex items-start gap-3">
+                                   <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                     {post.user.charAt(1).toUpperCase()}
+                                   </div>
+                                   <div className="flex-1">
+                                     <div className="flex items-center gap-2 mb-2">
+                                       <span className="font-semibold text-gray-900">{post.user}</span>
+                                       <span className="text-gray-500 text-sm">• {post.time}</span>
+                                     </div>
+                                     <p className="text-gray-700 mb-3">{post.content}</p>
+                                     <div className="flex items-center gap-4 text-sm text-gray-500">
+                                       <div className="flex items-center gap-1">
+                                         <ThumbsUp className="w-4 h-4" />
+                                         <span>{post.likes}</span>
+                                       </div>
+                                       {post.retweets && (
+                                         <div className="flex items-center gap-1">
+                                           <Share2 className="w-4 h-4" />
+                                           <span>{post.retweets}</span>
+                                         </div>
+                                       )}
+                                     </div>
+                                   </div>
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         )}
+
+                         {/* LinkedIn Content */}
+                         {activeSocialPlatform === 'linkedin' && (
+                           <div className="space-y-4">
+                             {socialFeeds.find(p => p.platform === 'LinkedIn')?.posts.map((post, postIndex) => (
+                               <div key={postIndex} className="bg-gray-50 p-4 rounded-lg">
+                                 <div className="flex items-start gap-3">
+                                   <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                     {post.user.charAt(1).toUpperCase()}
+                                   </div>
+                                   <div className="flex-1">
+                                     <div className="flex items-center gap-2 mb-2">
+                                       <span className="font-semibold text-gray-900">{post.user}</span>
+                                       <span className="text-gray-500 text-sm">• {post.time}</span>
+                                     </div>
+                                     <p className="text-gray-700 mb-3">{post.content}</p>
+                                     <div className="flex items-center gap-4 text-sm text-gray-500">
+                                       <div className="flex items-center gap-1">
+                                         <ThumbsUp className="w-4 h-4" />
+                                         <span>{post.likes}</span>
+                                       </div>
+                                       {post.comments && (
+                                         <div className="flex items-center gap-1">
+                                           <MessageSquare className="w-4 h-4" />
+                                           <span>{post.comments}</span>
+                                         </div>
+                                       )}
+                                     </div>
+                                   </div>
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </TabsContent>
 
                   <TabsContent value="team" className="p-6">
                     <div className="space-y-6">
@@ -603,49 +573,50 @@ export default function ToolDetailPage() {
               </div>
             </div>
 
-            <div className="mt-8">
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Reviews</h2>
-                  <Button variant="outline">Write a Review</Button>
-                </div>
+                         {/* Reviews section hidden */}
+             {/* <div className="mt-8">
+               <div className="bg-white rounded-lg shadow-sm border p-6">
+                 <div className="flex items-center justify-between mb-6">
+                   <h2 className="text-2xl font-bold text-gray-900">Reviews</h2>
+                   <Button variant="outline">Write a Review</Button>
+                 </div>
 
-                <div className="space-y-6">
-                  {sampleReviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                          {review.avatar}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-semibold text-gray-900">{review.user}</span>
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-gray-500 text-sm">• {review.date}</span>
-                          </div>
-                          <p className="text-gray-700 mb-3">{review.comment}</p>
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <Button variant="ghost" size="sm" className="h-auto p-0 text-gray-500 hover:text-gray-700">
-                              <ThumbsUp className="w-4 h-4 mr-1" />
-                              Helpful ({review.helpful})
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                 <div className="space-y-6">
+                   {sampleReviews.map((review) => (
+                     <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                       <div className="flex items-start gap-4">
+                         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                           {review.avatar}
+                         </div>
+                         <div className="flex-1">
+                           <div className="flex items-center gap-2 mb-2">
+                             <span className="font-semibold text-gray-900">{review.user}</span>
+                             <div className="flex items-center gap-1">
+                               {[...Array(5)].map((_, i) => (
+                                 <Star
+                                   key={i}
+                                   className={`w-4 h-4 ${
+                                     i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                   }`}
+                                 />
+                               ))}
+                             </div>
+                             <span className="text-gray-500 text-sm">• {review.date}</span>
+                           </div>
+                           <p className="text-gray-700 mb-3">{review.comment}</p>
+                           <div className="flex items-center gap-2 text-sm text-gray-500">
+                             <Button variant="ghost" size="sm" className="h-auto p-0 text-gray-500 hover:text-gray-700">
+                               <ThumbsUp className="w-4 h-4 mr-1" />
+                               Helpful ({review.helpful})
+                             </Button>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             </div> */}
           </div>
 
           {/* Right Sidebar */}
@@ -669,10 +640,7 @@ export default function ToolDetailPage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-gray-900 truncate leading-tight mb-1">{tool.name}</p>
                       <p className="text-xs text-gray-600 mb-2">{tool.category}</p>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs font-medium text-gray-700">{tool.rating}</span>
-                      </div>
+                      
                     </div>
                   </div>
                 ))}
