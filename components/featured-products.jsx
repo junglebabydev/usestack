@@ -14,17 +14,17 @@ export default function FeaturedProducts() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetchFeaturedProducts()
+    fetchAllProducts()
   }, [])
 
-  const fetchFeaturedProducts = async () => {
+  const fetchAllProducts = async () => {
     try {
       setLoading(true)
       setError(null)
 
 
 
-      // Fetch featured products from Supabase
+      // Fetch all products from Supabase
       const { data, error } = await supabase
         .from('products')
         .select(`
@@ -33,7 +33,6 @@ export default function FeaturedProducts() {
           category:categories(name, slug)
         `)
         .order('created_at', { ascending: false })
-        .limit(6)
 
       if (error) {
         console.error('Error fetching products:', error)
@@ -53,7 +52,7 @@ export default function FeaturedProducts() {
   if (loading) {
     return (
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <Card key={i} className="animate-pulse">
             <div className="aspect-video bg-gray-200 rounded-t-lg"></div>
             <CardContent className="p-6">
@@ -74,7 +73,7 @@ export default function FeaturedProducts() {
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-700">Error loading products: {error}</p>
           <button 
-            onClick={fetchFeaturedProducts}
+            onClick={fetchAllProducts}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
           >
             Try Again
