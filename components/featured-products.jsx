@@ -5,10 +5,10 @@ import { supabase } from '@/lib/supabase'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Star, ExternalLink, Building2, CheckCircle } from 'lucide-react'
+import { Building2, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function FeaturedProducts({ showRating = true }) {
+export default function FeaturedProducts({ showRating = true, gridCols = 3, showAll = false, selectedCategories = [], selectedTags = [], searchQuery = "" }) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -51,9 +51,9 @@ export default function FeaturedProducts({ showRating = true }) {
 
   if (loading) {
     return (
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className={`grid sm:grid-cols-2 ${gridCols === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
         {[...Array(12)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i} className="animate-pulse h-[500px]">
             <div className="aspect-video bg-gray-200 rounded-t-lg"></div>
             <CardContent className="p-6">
               <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -91,10 +91,58 @@ export default function FeaturedProducts({ showRating = true }) {
     )
   }
 
+  // Filter products based on selected categories, tags, and search query
+  const filteredProducts = products.filter(product => {
+    // Filter by search query if provided
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      const productName = product.name?.toLowerCase() || ""
+      const productDescription = product.description?.toLowerCase() || ""
+      const productTagline = product.tagline?.toLowerCase() || ""
+      const productCategory = product.category?.name?.toLowerCase() || ""
+      const productTags = product.tags?.map(tag => tag.toLowerCase()) || []
+      
+      const hasMatch = 
+        productName.includes(query) ||
+        productDescription.includes(query) ||
+        productTagline.includes(query) ||
+        productCategory.includes(query) ||
+        productTags.some(tag => tag.includes(query))
+      
+      if (!hasMatch) {
+        return false
+      }
+    }
+    
+    // Filter by categories if any are selected
+    if (selectedCategories.length > 0) {
+      const productCategory = product.category?.name || product.category?.slug
+      if (!selectedCategories.includes(productCategory)) {
+        return false
+      }
+    }
+    
+    // Filter by tags if any are selected
+    if (selectedTags.length > 0) {
+      if (!product.tags || !Array.isArray(product.tags)) {
+        return false
+      }
+      const hasMatchingTag = selectedTags.some(tag => 
+        product.tags.includes(tag)
+      )
+      if (!hasMatchingTag) {
+        return false
+      }
+    }
+    
+    return true
+  })
+
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {products.map((product) => (
-        <Card key={product.id} className="hover:shadow-lg transition-shadow overflow-hidden h-full flex flex-col">
+    <>
+      <div className={`grid sm:grid-cols-2 ${gridCols === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
+        {(showAll ? filteredProducts : filteredProducts.slice(0, 6)).map((product) => (
+        <Card key={product.id} className="hover:shadow-lg transition-shadow overflow-hidden h-[500px] flex flex-col">
           {/* Product Image */}
           <div className="aspect-video bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
             {product.banner_url ? (
@@ -115,15 +163,7 @@ export default function FeaturedProducts({ showRating = true }) {
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-purple-800/50"></div>
             
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex gap-2">
-              <Badge className="bg-black text-white text-xs px-2 py-1">
-                {product.is_verified ? 'Verified' : 'New'}
-              </Badge>
-              <Badge variant="default" className="bg-blue-600 text-white text-xs px-2 py-1">
-                {product.product_kind || 'Tool'}
-              </Badge>
-            </div>
+
             
             {/* Product Name Overlay */}
             <div className="absolute bottom-3 left-3 right-3">
@@ -157,19 +197,19 @@ export default function FeaturedProducts({ showRating = true }) {
             {/* Product Name */}
             <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.name}</h3>
             
+            {/* Tagline */}
+            {product.tagline && (
+              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                {product.tagline}
+              </p>
+            )}
+            
             {/* Category */}
             <p className="text-sm text-gray-600 mb-3">
               {product.category?.name || 'Uncategorized'}
             </p>
             
-            {/* Rating (optional) */}
-            {showRating && (
-              <div className="flex items-center gap-1 mb-4">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">4.8</span>
-                <span className="text-sm text-gray-500">(120)</span>
-              </div>
-            )}
+
             
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4 flex-1">
@@ -185,26 +225,19 @@ export default function FeaturedProducts({ showRating = true }) {
             </div>
             
             {/* Action Button */}
-            <div className="flex gap-2 mt-auto">
-              <Link href={`/tool/${product.slug || product.id}`} className="flex-1">
+            <div className="mt-auto">
+              <Link href={`/tool/${product.slug || product.id}`} className="block">
                 <Button size="sm" className="w-full">
                   View tool
                 </Button>
               </Link>
-              {product.company?.website_url && (
-                <a
-                  href={product.company.website_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              )}
             </div>
           </CardContent>
         </Card>
       ))}
-    </div>
+      </div>
+      
+
+    </>
   )
 }

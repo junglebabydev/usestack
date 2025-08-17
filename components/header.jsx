@@ -26,26 +26,26 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-gray-700 hover:text-gray-900 font-medium">
-              Featured AI Tools & Agents
+              Home
             </Link>
 
-            {/* Categories Dropdown */}
+            {/* Explore Dropdown */}
             <div
               className="relative"
               onMouseEnter={() => setShowDropdown(true)}
               onMouseLeave={() => setShowDropdown(false)}
             >
               <button className="flex items-center text-gray-700 hover:text-gray-900 font-medium">
-                Categories
+                Explore
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
 
               {showDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-2 z-50">
+                <div className="absolute top-full left-0 w-64 bg-white rounded-b-md shadow-lg border border-gray-200 py-2 z-50">
                   {categories.map((category) => (
                     <Link
                       key={category.id}
-                      href={`/categories?category=${category.id}`}
+                      href={`/explore?category=${category.id}`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     >
                       {category.name}
@@ -53,7 +53,7 @@ export default function Header() {
                   ))}
                   <div className="border-t border-gray-100 mt-2 pt-2">
                     <Link
-                      href="/categories"
+                      href="/explore"
                       className="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-gray-50"
                     >
                       View All Categories
@@ -62,6 +62,10 @@ export default function Header() {
                 </div>
               )}
             </div>
+
+            <Link href="/submit-tool" className="text-gray-700 hover:text-gray-900 font-medium">
+              Submit Tool
+            </Link>
 
             {/** Newsletter temporarily hidden. Keep markup commented for easy re-enable.
             <Link href="/newsletter" className="text-gray-700 hover:text-gray-900 font-medium">
@@ -72,14 +76,7 @@ export default function Header() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
-            <Link href="/submit-tool">
-              <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
-                Submit Tool
-              </Button>
-            </Link>
-            <Button variant="outline" size="sm">
-              Login / Sign up
-            </Button>
+            {/* Login/Sign up button hidden */}
           </div>
         </div>
       </div>

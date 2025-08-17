@@ -82,7 +82,7 @@ export default function CategoriesPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">All Categories</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {categories.map((category) => (
-                  <Link key={category.id} href={`/categories?category=${category.id}`}>
+                  <Link key={category.id} href={`/explore?category=${category.id}`}>
                     <Card className="hover:shadow-md transition-shadow cursor-pointer">
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
@@ -119,7 +119,7 @@ export default function CategoriesPage() {
             {/* All Tools & Agents */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">All Tools & Agents</h2>
-              <FeaturedProducts />
+              <FeaturedProducts gridCols={3} showRating={false} />
             </div>
           </div>
         </div>

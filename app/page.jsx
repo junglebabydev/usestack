@@ -1,15 +1,37 @@
+"use client"
+
 import Header from "@/components/header"
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Search, ArrowRight } from "lucide-react"
 import Link from "next/link"
-import { aiStacks, categories, stats, popularSearches } from "@/lib/data"
+import { useRouter } from "next/navigation"
+import { aiStacks, categories, popularSearches } from "@/lib/data"
 import FeaturedProducts from "@/components/featured-products"
 
 export default function HomePage() {
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showAllCategories, setShowAllCategories] = useState(false)
   const browseCategoriesData = categories.slice(0, 6)
+  const allCategoriesData = categories
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/explore?search=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      router.push('/explore')
+    }
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -34,9 +56,17 @@ export default function HomePage() {
                 <Input
                   placeholder="Search for AI tools, agents, or categories..."
                   className="pl-12 py-3 text-base border-2 border-gray-200 rounded-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
                 />
               </div>
-              <Button className="rounded-full px-6 py-3">Search</Button>
+              <Button 
+                className="rounded-full px-6 py-3"
+                onClick={handleSearch}
+              >
+                Search
+              </Button>
             </div>
           </div>
 
@@ -44,7 +74,12 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             <span className="text-gray-600 mr-2">Popular searches:</span>
             {popularSearches.map((search) => (
-              <Badge key={search} variant="secondary" className="cursor-pointer hover:bg-gray-200">
+              <Badge 
+                key={search} 
+                variant="secondary" 
+                className="cursor-pointer hover:bg-gray-200"
+                onClick={() => router.push(`/explore?search=${encodeURIComponent(search)}`)}
+              >
                 {search}
               </Badge>
             ))}
@@ -52,29 +87,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">{stats.totalTools}</div>
-              <div className="text-gray-600">AI Tools & Agents</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">{stats.happyUsers}</div>
-              <div className="text-gray-600">Happy Users</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">{stats.categories}</div>
-              <div className="text-gray-600">Categories</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">{stats.averageRating}</div>
-              <div className="text-gray-600">Average Rating</div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Browse by Category */}
       <section className="py-16 bg-white">
@@ -85,8 +98,8 @@ export default function HomePage() {
           </div>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-            {browseCategoriesData.map((category) => (
-              <Link key={category.id} href={`/categories?category=${category.id}`}>
+            {(showAllCategories ? allCategoriesData : browseCategoriesData).map((category) => (
+              <Link key={category.id} href={`/explore?category=${category.id}`}>
                 <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -108,8 +121,12 @@ export default function HomePage() {
           </div>
 
           <div className="text-center">
-            <Button variant="outline" size="lg">
-              View All Categories
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => setShowAllCategories(!showAllCategories)}
+            >
+              {showAllCategories ? "Hide All" : "View All Categories"}
             </Button>
           </div>
         </div>
@@ -200,12 +217,12 @@ export default function HomePage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Tools & Agents</h2>
               <p className="text-gray-600">Top-rated AI tools trusted by thousands of users</p>
             </div>
-            <Link href="/categories">
+            <Link href="/explore">
               <Button variant="outline">View All</Button>
             </Link>
           </div>
 
-          <FeaturedProducts showRating={false} />
+                        <FeaturedProducts showRating={false} gridCols={3} />
         </div>
       </section>
     </div>

@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import ShareModal from "@/components/ui/share-modal"
+import ReportModal from "@/components/ui/report-modal"
 import {
   Star,
   ExternalLink,
@@ -32,11 +34,7 @@ const trendingTools = [
   { name: "Code Generator", category: "Code & Development", rating: 4.9 },
 ]
 
-const latestNews = [
-  { title: "New AI Writing Features Released", date: "2 days ago" },
-  { title: "Platform Security Update", date: "1 week ago" },
-  { title: "Community Milestone: 50K Users", date: "2 weeks ago" },
-]
+
 
 const getCategoryImage = (category) => {
   const categoryImages = {
@@ -149,14 +147,39 @@ export default function ToolDetailPage() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [showCopiedHint, setShowCopiedHint] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [showReportModal, setShowReportModal] = useState(false)
   const [activeSocialPlatform, setActiveSocialPlatform] = useState('x')
+  const [latestNews, setLatestNews] = useState([
+    { title: "New AI Writing Features Released", date: "2 days ago" },
+    { title: "Platform Security Update", date: "1 week ago" },
+    { title: "Community Milestone: 50K Users", date: "2 weeks ago" },
+  ])
 
   useEffect(() => {
     if (params?.slug) {
       fetchProduct()
     }
   }, [params?.slug])
+
+  useEffect(() => {
+    fetchAINews()
+  }, [])
+
+  const fetchAINews = async () => {
+    try {
+      const response = await fetch('/api/fetch-ai-news')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.news) {
+          setLatestNews(data.news.slice(0, 3)) // Show only 3 latest news items
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch AI news:', error)
+      // Keep the default news if API fails
+    }
+  }
 
   const fetchProduct = async () => {
     try {
@@ -207,18 +230,7 @@ export default function ToolDetailPage() {
     }
   }
 
-  const handleShare = async () => {
-    try {
-      const currentUrl = window.location.href
-      await navigator.clipboard.writeText(currentUrl)
-      setShowCopiedHint(true)
-      setTimeout(() => setShowCopiedHint(false), 2000) // Hide hint after 2 seconds
-    } catch (err) {
-      console.error('Failed to copy link:', err)
-      // Fallback: show a simple alert
-      alert('Failed to copy link. Please copy the URL manually.')
-    }
-  }
+
 
   if (loading) {
     return (
@@ -282,14 +294,7 @@ export default function ToolDetailPage() {
           <div className="lg:col-span-5">
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant={product.is_verified ? "default" : "secondary"}>
-                    {product.is_verified ? 'Verified' : 'New'}
-                  </Badge>
-                  <Badge variant="outline">{product.product_kind || 'Tool'}</Badge>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-gray-600">{product.category?.name || 'Uncategorized'}</span>
-                </div>
+
                 <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
                 <p className="text-gray-600 text-lg leading-relaxed mb-4">{product.description || 'No description available.'}</p>
 
@@ -309,22 +314,16 @@ export default function ToolDetailPage() {
                       Try Tool
                     </Button>
                   )}
-                  <Button variant="outline" size="lg">
+                  {/* Save button hidden for now */}
+                  {/* <Button variant="outline" size="lg">
                     <Heart className="w-4 h-4 mr-2" />
                     Save
+                  </Button> */}
+                  <Button variant="outline" size="lg" onClick={() => setShowShareModal(true)}>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share
                   </Button>
-                  <div className="relative">
-                    <Button variant="outline" size="lg" onClick={handleShare}>
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Share
-                    </Button>
-                    {showCopiedHint && (
-                      <div className="absolute -bottom-8 left-0 bg-green-100 text-green-800 text-xs px-2 py-1 rounded whitespace-nowrap">
-                        ✓ Link copied!
-                      </div>
-                    )}
-                  </div>
-                  <Button variant="outline" size="lg">
+                  <Button variant="outline" size="lg" onClick={() => setShowReportModal(true)}>
                     <Flag className="w-4 h-4 mr-2" />
                     Report
                   </Button>
@@ -399,7 +398,7 @@ export default function ToolDetailPage() {
                         </p>
                       </div>
 
-                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                             <div className="grid grid-cols-3 gap-4 mb-4">
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
                            <Globe className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Website</div>
@@ -415,25 +414,27 @@ export default function ToolDetailPage() {
                          </div>
 
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
-                           <Calendar className="w-8 h-8 text-green-600 mb-2" />
+                           <Calendar className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Founded in</div>
                            <div className="text-gray-600 text-sm">2019</div>
                          </div>
 
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
-                           <MapPin className="w-8 h-8 text-red-600 mb-2" />
+                           <MapPin className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Location</div>
                            <div className="text-gray-600 text-sm">San Francisco, CA</div>
                          </div>
+                       </div>
 
+                       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
-                           <Users className="w-8 h-8 text-purple-600 mb-2" />
+                           <Users className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Team Size</div>
                            <div className="text-gray-600 text-sm">50-100 employees</div>
                          </div>
 
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
-                           <TrendingUp className="w-8 h-8 text-orange-600 mb-2" />
+                           <TrendingUp className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Funding</div>
                            <div className="text-gray-600 text-sm">Series B</div>
                          </div>
@@ -542,31 +543,16 @@ export default function ToolDetailPage() {
                    </TabsContent>
 
                   <TabsContent value="team" className="p-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Meet the Team</h2>
-                        <p className="text-gray-600 mb-8">
-                          Get to know the talented individuals behind {product.company?.name || 'this company'} who are passionate about
-                          creating innovative AI solutions.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {teamMembers.map((member, index) => (
-                          <div key={index} className="bg-white border rounded-lg p-6 text-center">
-                            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
-                              {member.avatar}
-                            </div>
-                            <h3 className="font-semibold text-gray-900 mb-1">{member.name}</h3>
-                            <p className="text-blue-600 text-sm mb-3">{member.role}</p>
-                            <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
-                            <Button variant="outline" size="sm" className="w-full bg-transparent">
-                              <User className="w-4 h-4 mr-2" />
-                              View LinkedIn
-                            </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {teamMembers.map((member, index) => (
+                        <div key={index} className="bg-white border rounded-lg p-6 text-center">
+                          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
+                            {member.avatar}
                           </div>
-                        ))}
-                      </div>
+                          <h3 className="font-semibold text-gray-900 mb-1">{member.name}</h3>
+                          <p className="text-blue-600 text-sm">{member.role}</p>
+                        </div>
+                      ))}
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -661,7 +647,12 @@ export default function ToolDetailPage() {
                     className="p-4 rounded-lg hover:bg-green-50 transition-colors border border-transparent hover:border-green-200 hover:shadow-sm"
                   >
                     <p className="font-semibold text-sm text-gray-900 leading-tight mb-2">{news.title}</p>
-                    <p className="text-xs text-gray-500 font-medium">{news.date}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span className="font-medium">{news.date}</span>
+                      {news.source && (
+                        <span className="text-gray-400">via {news.source}</span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </CardContent>
@@ -671,6 +662,23 @@ export default function ToolDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        title={product?.name}
+        description={product?.description}
+      />
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        toolName={product?.name}
+        toolId={product?.id}
+      />
     </div>
   )
 }
