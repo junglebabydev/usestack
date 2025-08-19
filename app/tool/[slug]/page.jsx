@@ -191,7 +191,7 @@ export default function ToolDetailPage() {
         .from('products')
         .select(`
           *,
-          company:companies(name, slug, website_url, logo_url, verified),
+          company:companies(name, slug, website_url, logo_url, verified, team_size, funding_round, funding_amount, funding_info),
           category:categories(name, slug)
         `)
         .eq('slug', params.slug)
@@ -203,7 +203,7 @@ export default function ToolDetailPage() {
           .from('products')
           .select(`
             *,
-            company:companies(name, slug, website_url, logo_url, verified),
+            company:companies(name, slug, website_url, logo_url, verified, team_size, funding_round, funding_amount, funding_info),
             category:categories(name, slug)
           `)
           .eq('id', parseInt(params.slug))
@@ -284,8 +284,6 @@ export default function ToolDetailPage() {
         <nav className="flex text-sm text-gray-500 mb-6">
           <span>Home</span>
           <span className="mx-2">/</span>
-          <span>{product.category?.name || 'Uncategorized'}</span>
-          <span className="mx-2">/</span>
           <span className="text-gray-900">{product.name}</span>
         </nav>
 
@@ -308,11 +306,13 @@ export default function ToolDetailPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {product.company?.website_url && (
-                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Try Tool
-                    </Button>
+                  {product.website_url && (
+                    <a href={product.website_url} target="_blank" rel="noopener noreferrer">
+                      <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Try Tool
+                      </Button>
+                    </a>
                   )}
                   {/* Save button hidden for now */}
                   {/* <Button variant="outline" size="lg">
@@ -430,13 +430,13 @@ export default function ToolDetailPage() {
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
                            <Users className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Team Size</div>
-                           <div className="text-gray-600 text-sm">50-100 employees</div>
+                           <div className="text-gray-600 text-sm">{product.company?.team_size || '—'}</div>
                          </div>
-
+ 
                          <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
                            <TrendingUp className="w-8 h-8 text-blue-600 mb-2" />
                            <div className="font-semibold text-gray-900 text-sm mb-1">Funding</div>
-                           <div className="text-gray-600 text-sm">Series B</div>
+                           <div className="text-gray-600 text-sm">{(product.company?.funding_round || product.company?.funding_info || '—') + (product.company?.funding_amount ? ` • ${product.company.funding_amount}` : '')}</div>
                          </div>
                        </div>
                     </div>
@@ -642,9 +642,12 @@ export default function ToolDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4 pt-5">
                 {latestNews.map((news, index) => (
-                  <div
+                  <a
                     key={index}
-                    className="p-4 rounded-lg hover:bg-green-50 transition-colors border border-transparent hover:border-green-200 hover:shadow-sm"
+                    href={news.url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block p-4 rounded-lg hover:bg-green-50 transition-colors border border-transparent hover:border-green-200 hover:shadow-sm"
                   >
                     <p className="font-semibold text-sm text-gray-900 leading-tight mb-2">{news.title}</p>
                     <div className="flex items-center justify-between text-xs text-gray-500">
@@ -653,7 +656,7 @@ export default function ToolDetailPage() {
                         <span className="text-gray-400">via {news.source}</span>
                       )}
                     </div>
-                  </div>
+                  </a>
                 ))}
               </CardContent>
             </Card>

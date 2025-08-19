@@ -30,7 +30,12 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
         .select(`
           *,
           company:companies(name, slug, website_url, logo_url, verified),
-          category:categories(name, slug)
+          product_categories:product_categories(
+            category:categories(id, name, slug)
+          ),
+          product_tags:product_tags(
+            tag:tags(id, name, slug)
+          )
         `)
         .order('created_at', { ascending: false })
 
@@ -100,6 +105,9 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
       const productDescription = product.description?.toLowerCase() || ""
       const productTagline = product.tagline?.toLowerCase() || ""
       const productCategory = product.category?.name?.toLowerCase() || ""
+      const productCategoryList = (product.product_categories || [])
+        .map(pc => pc.category?.name?.toLowerCase())
+        .filter(Boolean)
       const productTags = product.tags?.map(tag => tag.toLowerCase()) || []
       
       const hasMatch = 
@@ -107,6 +115,7 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
         productDescription.includes(query) ||
         productTagline.includes(query) ||
         productCategory.includes(query) ||
+        productCategoryList.some(c => c.includes(query)) ||
         productTags.some(tag => tag.includes(query))
       
       if (!hasMatch) {
@@ -116,20 +125,32 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
     
     // Filter by categories if any are selected
     if (selectedCategories.length > 0) {
-      const productCategory = product.category?.name || product.category?.slug
-      if (!selectedCategories.includes(productCategory)) {
-        return false
-      }
+      const candidateValues = [
+        product.category?.name,
+        product.category?.slug,
+        ...(product.product_categories || []).flatMap(pc => [pc.category?.name, pc.category?.slug])
+      ]
+        .filter(Boolean)
+        .map(v => String(v).toLowerCase())
+
+      const selectedLower = selectedCategories.map(v => String(v).toLowerCase())
+      const matchesAny = candidateValues.some(v => selectedLower.includes(v))
+      if (!matchesAny) return false
     }
     
     // Filter by tags if any are selected
     if (selectedTags.length > 0) {
-      if (!product.tags || !Array.isArray(product.tags)) {
+      const productTagNames = [
+        ...(Array.isArray(product.tags) ? product.tags : []),
+        ...((product.product_tags || []).map(pt => pt?.tag?.name).filter(Boolean))
+      ].map(t => String(t).toLowerCase())
+
+      if (productTagNames.length === 0) {
         return false
       }
-      const hasMatchingTag = selectedTags.some(tag => 
-        product.tags.includes(tag)
-      )
+
+      const selectedLower = selectedTags.map(t => String(t).toLowerCase())
+      const hasMatchingTag = selectedLower.some(tag => productTagNames.includes(tag))
       if (!hasMatchingTag) {
         return false
       }
@@ -204,24 +225,52 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
               </p>
             )}
             
-            {/* Category */}
-            <p className="text-sm text-gray-600 mb-3">
-              {product.category?.name || 'Uncategorized'}
-            </p>
+            {/* Categories as pills */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {(() => {
+                const names = [
+                  product?.category?.name,
+                  ...(product?.product_categories || [])
+                    .map(pc => pc?.category?.name)
+                    .filter(Boolean)
+                ].filter(Boolean)
+                if (names.length === 0) {
+                  return (
+                    <Badge variant="secondary" className="text-xs px-3 py-1">Uncategorized</Badge>
+                  )
+                }
+                return names.slice(0, 2).map((name, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-xs px-3 py-1">
+                    {name}
+                  </Badge>
+                ))
+              })()}
+            </div>
             
 
             
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4 flex-1">
-              {product.tags && product.tags.slice(0, 2).map((tag, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="text-xs px-3 py-1 min-w-[80px] justify-center truncate"
-                >
-                  #{tag}
-                </Badge>
-              ))}
+              {(() => {
+                const tagNames = [
+                  ...(product?.tags || []), // legacy array of strings
+                  ...((product?.product_tags || [])
+                    .map(pt => pt?.tag?.name)
+                    .filter(Boolean))
+                ]
+                  .filter(Boolean)
+                  .slice(0, 4)
+
+                return tagNames.map((tag, index) => (
+                  <Badge
+                    key={`${tag}-${index}`}
+                    variant="secondary"
+                    className="text-xs px-3 py-1 min-w-[80px] justify-center truncate"
+                  >
+                    #{tag}
+                  </Badge>
+                ))
+              })()}
             </div>
             
             {/* Action Button */}

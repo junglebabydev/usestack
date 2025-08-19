@@ -1,13 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronDown } from "lucide-react"
-import { categories } from "@/lib/data"
+import { supabase } from "@/lib/supabase"
 
 export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false)
+  const [dbCategories, setDbCategories] = useState([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .order('name', { ascending: true })
+
+      if (!error && data) {
+        setDbCategories(data)
+      } else {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -42,10 +60,10 @@ export default function Header() {
 
               {showDropdown && (
                 <div className="absolute top-full left-0 w-64 bg-white rounded-b-md shadow-lg border border-gray-200 py-2 z-50">
-                  {categories.map((category) => (
+                  {dbCategories.slice(0, 10).map((category) => (
                     <Link
                       key={category.id}
-                      href={`/explore?category=${category.id}`}
+                      href={`/explore?category=${category.slug || category.id}`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     >
                       {category.name}
@@ -56,7 +74,7 @@ export default function Header() {
                       href="/explore"
                       className="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-gray-50"
                     >
-                      View All Categories
+                      Explore
                     </Link>
                   </div>
                 </div>

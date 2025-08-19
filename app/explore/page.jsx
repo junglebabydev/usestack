@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Header from "@/components/header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Filter, Search } from "lucide-react"
-import { categories } from "@/lib/data"
+// categories and tags are now fetched from Supabase
 import FeaturedProducts from "@/components/featured-products"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,8 @@ export default function ExplorePage() {
   const [selectedCategories, setSelectedCategories] = useState(initialCategory ? [initialCategory] : [])
   const [selectedTags, setSelectedTags] = useState([])
   const [availableTags, setAvailableTags] = useState([])
+  const [availableCategories, setAvailableCategories] = useState([])
+  const [categoryCounts, setCategoryCounts] = useState({})
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
 
   const handleCategoryChange = (categoryId, checked) => {
@@ -63,29 +65,67 @@ export default function ExplorePage() {
     }
   }
 
-  // Get unique tags from all products
+  // Fetch categories and tags from Supabase
   useEffect(() => {
-    const fetchTags = async () => {
+    const fetchFilters = async () => {
       try {
-        const { data } = await supabase
-          .from('products')
-          .select('tags')
-        
-        if (data) {
-          const allTags = data
-            .filter(product => product.tags && Array.isArray(product.tags))
-            .flatMap(product => product.tags)
-            .filter((tag, index, arr) => arr.indexOf(tag) === index) // Remove duplicates
-            .sort()
-          setAvailableTags(allTags)
+        const [categoriesRes, productCategoriesRes, tagsRes] = await Promise.all([
+          supabase.from('categories').select('id, name, slug').order('name', { ascending: true }),
+          supabase.from('product_categories').select('category_id'),
+          supabase.from('tags').select('name').order('name', { ascending: true })
+        ])
+
+        if (!categoriesRes.error && categoriesRes.data) {
+          setAvailableCategories(categoriesRes.data)
+        } else {
+          console.error('Error fetching categories:', categoriesRes.error)
+        }
+
+        if (!productCategoriesRes.error && productCategoriesRes.data) {
+          const counts = {}
+          productCategoriesRes.data.forEach((row) => {
+            counts[row.category_id] = (counts[row.category_id] || 0) + 1
+          })
+          setCategoryCounts(counts)
+        } else {
+          console.error('Error fetching product_categories:', productCategoriesRes.error)
+        }
+
+        if (!tagsRes.error && tagsRes.data) {
+          setAvailableTags(tagsRes.data.map(t => t.name))
+        } else {
+          console.error('Error fetching tags:', tagsRes.error)
         }
       } catch (error) {
-        console.error('Error fetching tags:', error)
+        console.error('Error fetching filters:', error)
       }
     }
-    
-    fetchTags()
+
+    fetchFilters()
   }, [])
+
+  // Memoized sorted lists to keep selected items at the top
+  const sortedCategories = useMemo(() => {
+    const originalIndex = new Map(availableCategories.map((c, i) => [c.id, i]))
+    const bySelectedThenOriginal = (a, b) => {
+      const aSel = selectedCategories.includes(a.slug)
+      const bSel = selectedCategories.includes(b.slug)
+      if (aSel !== bSel) return aSel ? -1 : 1
+      return (originalIndex.get(a.id) ?? 0) - (originalIndex.get(b.id) ?? 0)
+    }
+    return [...availableCategories].sort(bySelectedThenOriginal)
+  }, [availableCategories, selectedCategories])
+
+  const sortedTags = useMemo(() => {
+    const originalIndex = new Map(availableTags.map((t, i) => [t, i]))
+    const bySelectedThenOriginal = (a, b) => {
+      const aSel = selectedTags.includes(a)
+      const bSel = selectedTags.includes(b)
+      if (aSel !== bSel) return aSel ? -1 : 1
+      return (originalIndex.get(a) ?? 0) - (originalIndex.get(b) ?? 0)
+    }
+    return [...availableTags].sort(bySelectedThenOriginal)
+  }, [availableTags, selectedTags])
 
   return (
     <div className="min-h-screen bg-white">
@@ -134,19 +174,19 @@ export default function ExplorePage() {
                 <div className="mb-6">
                   <h4 className="font-medium mb-3">Categories</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {categories.map((category) => (
+                    {sortedCategories.map((category) => (
                       <div key={category.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id={category.id}
-                            checked={selectedCategories.includes(category.id)}
-                            onCheckedChange={(checked) => handleCategoryChange(category.id, checked)}
+                            id={category.slug}
+                            checked={selectedCategories.includes(category.slug)}
+                            onCheckedChange={(checked) => handleCategoryChange(category.slug, checked)}
                           />
-                          <label htmlFor={category.id} className="text-sm">
+                          <label htmlFor={category.slug} className="text-sm">
                             {category.name}
                           </label>
                         </div>
-                        <span className="text-xs text-gray-500">({category.count})</span>
+                        <span className="text-xs text-gray-500">({categoryCounts[category.id] || 0})</span>
                       </div>
                     ))}
                   </div>
@@ -156,7 +196,7 @@ export default function ExplorePage() {
                 <div className="mb-6">
                   <h4 className="font-medium mb-3">Tags</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {availableTags.map((tag) => (
+                    {sortedTags.map((tag) => (
                       <div key={tag} className="flex items-center space-x-2">
                         <Checkbox
                           id={`tag-${tag}`}
