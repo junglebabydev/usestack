@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Building2, CheckCircle } from 'lucide-react'
+// Company icons removed as company name is no longer displayed
 import Link from 'next/link'
 
 export default function FeaturedProducts({ showRating = true, gridCols = 3, showAll = false, selectedCategories = [], selectedTags = [], searchQuery = "" }) {
@@ -30,8 +30,8 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
         .select(`
           *,
           company:companies(name, slug, website_url, logo_url, verified),
-          product_categories:product_categories(
-            category:categories(id, name, slug)
+          product_categories:product_categories_final(
+            category:categories_final(id, name, slug)
           ),
           product_tags:product_tags(
             tag:tags(id, name, slug)
@@ -58,7 +58,7 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
     return (
       <div className={`grid sm:grid-cols-2 ${gridCols === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
         {[...Array(12)].map((_, i) => (
-          <Card key={i} className="animate-pulse h-[500px]">
+          <Card key={i} className="animate-pulse h-[440px]">
             <div className="aspect-video bg-gray-200 rounded-t-lg"></div>
             <CardContent className="p-6">
               <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -163,7 +163,7 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
     <>
       <div className={`grid sm:grid-cols-2 ${gridCols === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
         {(showAll ? filteredProducts : filteredProducts.slice(0, 6)).map((product) => (
-        <Card key={product.id} className="hover:shadow-lg transition-shadow overflow-hidden h-[500px] flex flex-col">
+        <Card key={product.id} className="hover:shadow-lg transition-shadow overflow-hidden h-[440px] flex flex-col">
           {/* Product Image */}
           <div className="aspect-video bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
             {product.banner_url ? (
@@ -173,47 +173,30 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
                 className="w-full h-full object-cover opacity-80"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-white text-center">
-                  <div className="text-4xl mb-2">🚀</div>
-                  <div className="text-sm opacity-80">{product.name}</div>
-                </div>
-              </div>
+              <div className="w-full h-full" />
             )}
-            
+
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-purple-800/50"></div>
-            
 
-            
-            {/* Product Name Overlay */}
-            <div className="absolute bottom-3 left-3 right-3">
-              <div className="flex items-center gap-2 text-white">
-                <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center text-xs">AI</div>
-                <span className="text-sm font-medium line-clamp-1">{product.name}</span>
-              </div>
+            {/* Centered logo/icon from tool_thumbnail_url */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {product.tool_thumbnail_url ? (
+                <div className="rounded-md bg-white/90 p-2 shadow-md">
+                  <img
+                    src={product.tool_thumbnail_url}
+                    alt={`${product.name} logo`}
+                    className="max-h-14 max-w-[160px] object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="text-4xl text-white">🚀</div>
+              )}
             </div>
           </div>
           
           <CardContent className="p-6 flex flex-col flex-1">
-            {/* Company Info */}
-            <div className="flex items-center gap-2 mb-2">
-              {product.company?.logo_url ? (
-                <img 
-                  src={product.company.logo_url} 
-                  alt={product.company.name}
-                  className="w-4 h-4 rounded"
-                />
-              ) : (
-                <Building2 className="w-4 h-4 text-gray-400" />
-              )}
-              <span className="text-sm text-gray-500">
-                {product.company?.name || 'Unknown Company'}
-              </span>
-              {product.company?.verified && (
-                <CheckCircle className="w-4 h-4 text-green-500" />
-              )}
-            </div>
+            {/* Company Info removed above product name */}
             
             {/* Product Name */}
             <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.name}</h3>
@@ -250,7 +233,7 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
 
             
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4 flex-1">
+            <div className="flex flex-wrap gap-2 mb-4">
               {(() => {
                 const tagNames = [
                   ...(product?.tags || []), // legacy array of strings
@@ -274,7 +257,7 @@ export default function FeaturedProducts({ showRating = true, gridCols = 3, show
             </div>
             
             {/* Action Button */}
-            <div className="mt-auto">
+            <div className="mt-2">
               <Link href={`/tool/${product.slug || product.id}`} className="block">
                 <Button size="sm" className="w-full">
                   View tool

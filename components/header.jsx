@@ -13,7 +13,7 @@ export default function Header() {
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
-        .from('categories')
+        .from('categories_final')
         .select('id, name, slug')
         .order('name', { ascending: true })
 

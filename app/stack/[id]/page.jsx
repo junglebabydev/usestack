@@ -2,10 +2,10 @@ import Header from "@/components/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ExternalLink, Users, Zap, TrendingUp, Clock } from "lucide-react"
+import { ExternalLink, Users, Zap, TrendingUp, Clock } from "lucide-react"
 import Link from "next/link"
-import { aiStacks, tools } from "@/lib/data"
 import { notFound } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 const relatedStacks = [
   { name: "Content Creators", description: "Creative AI tools for video, audio, and visual content", color: "pink" },
@@ -17,35 +17,33 @@ const relatedStacks = [
   { name: "Indie Hackers", description: "Lean AI tools for independent developers", color: "yellow" },
 ]
 
-export default function StackDetailPage({ params }) {
-  const stackData = aiStacks.find((stack) => stack.id === params.id)
+export default async function StackDetailPage({ params }) {
+  // Fetch stack from DB (by id or slug)
+  const { data: stackData, error } = await supabase
+    .from('stacks')
+    .select(`
+      id, name, slug, description,
+      product_stacks:product_stacks(
+        sort_order,
+        product:products(
+          id, name, slug, tagline,
+          product_categories:product_categories_final(
+            category:categories_final(name)
+          )
+        )
+      )
+    `)
+    .eq('id', params.id)
+    .single()
 
-  if (!stackData) {
+  if (error || !stackData) {
     notFound()
   }
 
-  // Get detailed tool information for this stack
-  const stackTools = stackData.tools.map((stackTool, index) => {
-    // Find matching tool from tools data or create mock data
-    const detailedTool = tools.find((t) => t.name.toLowerCase().includes(stackTool.name.toLowerCase())) || {
-      id: index + 100,
-      name: stackTool.name,
-      description: `Advanced ${stackTool.category.toLowerCase()} tool designed for ${stackData.name.toLowerCase()} use cases.`,
-      category: stackTool.category,
-      rating: stackTool.rating,
-      reviews: Math.floor(Math.random() * 1000) + 100,
-      badge: stackTool.type === "Tool" ? "Featured" : "Agent",
-      type: stackTool.type,
-      provider: `${stackTool.name} Labs`,
-      pricing: {
-        startingPrice: "$" + (Math.floor(Math.random() * 50) + 10) + "/month",
-      },
-      features: ["AI-Powered", "Easy Integration", "Real-time Analytics", "Custom Workflows"],
-      website: `https://${stackTool.name.toLowerCase().replace(/\s+/g, "")}.com`,
-      images: ["/placeholder.svg?key=" + Math.random().toString(36).substr(2, 5)],
-    }
-    return detailedTool
-  })
+  const stackProducts = (stackData.product_stacks || [])
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map(ps => ps.product)
+    .filter(Boolean)
 
   return (
     <div className="min-h-screen bg-white">
@@ -80,20 +78,10 @@ export default function StackDetailPage({ params }) {
           <div className="flex items-start gap-6">
             <div
               className={`w-16 h-16 rounded-xl flex items-center justify-center text-3xl ${
-                stackData.color === "blue"
-                  ? "bg-blue-100"
-                  : stackData.color === "green"
-                    ? "bg-green-100"
-                    : stackData.color === "purple"
-                      ? "bg-purple-100"
-                      : stackData.color === "pink"
-                        ? "bg-pink-100"
-                        : stackData.color === "yellow"
-                          ? "bg-yellow-100"
-                          : "bg-indigo-100"
+                "bg-blue-100"
               }`}
             >
-              {stackData.icon}
+              {stackData.name?.charAt(0) || 'S'}
             </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 mb-3">{stackData.name}</h1>
@@ -102,14 +90,13 @@ export default function StackDetailPage({ params }) {
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-gray-600" />
-                  <span className="text-gray-600">{stackData.tools.length} Tools & Agents</span>
+                  <span className="text-gray-600">{stackProducts.length} Tools & Agents</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-gray-600" />
                   <span className="text-gray-600">Perfect for {stackData.name.toLowerCase()}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-gray-600">4.7 average rating</span>
                 </div>
               </div>
@@ -140,7 +127,7 @@ export default function StackDetailPage({ params }) {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-gray-50 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-gray-900">{stackData.tools.length}</div>
+                  <div className="text-2xl font-bold text-gray-900">{stackProducts.length}</div>
                   <div className="text-sm text-gray-600">Tools & Agents</div>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg text-center">
@@ -158,7 +145,11 @@ export default function StackDetailPage({ params }) {
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Tools & Agents in this Stack</h2>
               <div className="space-y-6">
-                {stackTools.map((tool, index) => (
+                {stackProducts.map((tool) => {
+                  const categoryName = (tool.product_categories || [])
+                    .map(pc => pc?.category?.name)
+                    .filter(Boolean)[0]
+                  return (
                   <Card key={tool.id} className="hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start gap-6">
@@ -167,49 +158,33 @@ export default function StackDetailPage({ params }) {
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <div className="flex items-center gap-2 mb-2">
-                                <Badge variant={tool.type === "Tool" ? "default" : "secondary"}>{tool.type}</Badge>
-                                <Badge variant="outline">{tool.category}</Badge>
+                                <Badge variant="default">Tool</Badge>
+                                {categoryName && <Badge variant="outline">{categoryName}</Badge>}
                               </div>
                               <h3 className="text-xl font-semibold text-gray-900 mb-2">{tool.name}</h3>
-                              <p className="text-gray-600 mb-3">{tool.description}</p>
+                              {tool.tagline && <p className="text-gray-600 mb-3">{tool.tagline}</p>}
                             </div>
-                            <div className="text-right">
-                              <div className="flex items-center gap-1 mb-2">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="font-medium">{tool.rating}</span>
-                                <span className="text-sm text-gray-500">({tool.reviews})</span>
-                              </div>
-                              <div className="text-sm text-gray-600">{tool.pricing.startingPrice}</div>
-                            </div>
+                            <div className="text-right"></div>
                           </div>
 
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {tool.features.slice(0, 4).map((feature, featureIndex) => (
-                              <Badge key={featureIndex} variant="secondary" className="text-xs">
-                                {feature}
-                              </Badge>
-                            ))}
-                          </div>
+                          
 
                           <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-500">by {tool.provider}</div>
+                            <div className="text-sm text-gray-500"></div>
                             <div className="flex gap-2">
-                              <Link href={`/tool/${tool.id}`}>
+                              <Link href={`/tool/${tool.slug || tool.id}`}>
                                 <Button variant="outline" size="sm">
                                   View Details
                                 </Button>
                               </Link>
-                              <Button size="sm">
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                Try Tool
-                              </Button>
                             </div>
                           </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  )
+                })}
               </div>
             </div>
 
@@ -279,7 +254,7 @@ export default function StackDetailPage({ params }) {
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Total Tools</span>
-                  <span className="font-medium">{stackData.tools.length}</span>
+                  <span className="font-medium">{stackProducts.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Average Rating</span>

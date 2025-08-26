@@ -70,8 +70,8 @@ export default function ExplorePage() {
     const fetchFilters = async () => {
       try {
         const [categoriesRes, productCategoriesRes, tagsRes] = await Promise.all([
-          supabase.from('categories').select('id, name, slug').order('name', { ascending: true }),
-          supabase.from('product_categories').select('category_id'),
+          supabase.from('categories_final').select('id, name, slug').order('name', { ascending: true }),
+          supabase.from('product_categories_final').select('category_id'),
           supabase.from('tags').select('name').order('name', { ascending: true })
         ])
 

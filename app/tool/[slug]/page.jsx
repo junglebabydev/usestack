@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Header from "@/components/header"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -28,11 +29,7 @@ import {
 } from "lucide-react"
 import { notFound } from "next/navigation"
 
-const trendingTools = [
-  { name: "AI Content Writer", category: "Writing & Content", rating: 4.8 },
-  { name: "Design Assistant", category: "Design & Creative", rating: 4.6 },
-  { name: "Code Generator", category: "Code & Development", rating: 4.9 },
-]
+// Trending products are fetched dynamically by IDs
 
 
 
@@ -155,6 +152,7 @@ export default function ToolDetailPage() {
     { title: "Platform Security Update", date: "1 week ago" },
     { title: "Community Milestone: 50K Users", date: "2 weeks ago" },
   ])
+  const [trendingProducts, setTrendingProducts] = useState([])
 
   useEffect(() => {
     if (params?.slug) {
@@ -164,6 +162,35 @@ export default function ToolDetailPage() {
 
   useEffect(() => {
     fetchAINews()
+  }, [])
+
+  // Fetch trending products by specific IDs
+  useEffect(() => {
+    const fetchTrending = async () => {
+      const trendingIds = [13, 14, 15]
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select(`
+            id, name, slug, tagline,
+            product_categories:product_categories(
+              category:categories(name)
+            )
+          `)
+          .in('id', trendingIds)
+
+        if (!error && data) {
+          const ordered = [...data].sort((a, b) => trendingIds.indexOf(a.id) - trendingIds.indexOf(b.id))
+          setTrendingProducts(ordered)
+        } else if (error) {
+          console.error('Error fetching trending products:', error)
+        }
+      } catch (err) {
+        console.error('Error fetching trending products:', err)
+      }
+    }
+
+    fetchTrending()
   }, [])
 
   const fetchAINews = async () => {
@@ -192,7 +219,7 @@ export default function ToolDetailPage() {
         .select(`
           *,
           company:companies(name, slug, website_url, logo_url, verified, team_size, funding_round, funding_amount, funding_info),
-          category:categories(name, slug)
+          category:categories_final(name, slug)
         `)
         .eq('slug', params.slug)
         .single()
@@ -204,7 +231,7 @@ export default function ToolDetailPage() {
           .select(`
             *,
             company:companies(name, slug, website_url, logo_url, verified, team_size, funding_round, funding_amount, funding_info),
-            category:categories(name, slug)
+            category:categories_final(name, slug)
           `)
           .eq('id', parseInt(params.slug))
           .single()
@@ -310,7 +337,7 @@ export default function ToolDetailPage() {
                     <a href={product.website_url} target="_blank" rel="noopener noreferrer">
                       <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        Try Tool
+                        Website
                       </Button>
                     </a>
                   )}
@@ -615,21 +642,28 @@ export default function ToolDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-5">
-                {trendingTools.map((tool, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-4 p-4 rounded-lg hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-200 hover:shadow-sm"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-gray-900 truncate leading-tight mb-1">{tool.name}</p>
-                      <p className="text-xs text-gray-600 mb-2">{tool.category}</p>
-                      
-                    </div>
-                  </div>
-                ))}
+                {trendingProducts.map((tp, index) => {
+                  const categoryName = (tp.product_categories || [])
+                    .map(pc => pc?.category?.name)
+                    .filter(Boolean)[0]
+                  const subline = tp.tagline || categoryName || '—'
+                  const href = `/tool/${tp.slug || tp.id}`
+                  return (
+                    <Link
+                      href={href}
+                      key={tp.id}
+                      className="flex items-start gap-4 p-4 rounded-lg hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-200 hover:shadow-sm"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 truncate leading-tight mb-1">{tp.name}</p>
+                        <p className="text-xs text-gray-600 mb-2">{subline}</p>
+                      </div>
+                    </Link>
+                  )
+                })}
               </CardContent>
             </Card>
 
