@@ -24,6 +24,19 @@ import {
   Box,
   ChevronLeft,
   ChevronRight,
+  BarChart3,
+  Zap,
+  BookOpen,
+  Briefcase,
+  Settings,
+  Brain,
+  Users,
+  Globe,
+  Database,
+  Cpu,
+  Sparkles,
+  Target,
+  Lightbulb,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,9 +49,14 @@ export default function HomePage() {
     const n = (name || "").toLowerCase();
     if (n.includes("code") || n.includes("dev") || n.includes("program"))
       return <Code className="w-5 h-5" />;
-    if (n.includes("image") || n.includes("photo") || n.includes("design"))
+    if (
+      n.includes("image") ||
+      n.includes("photo") ||
+      n.includes("design") ||
+      n.includes("art")
+    )
       return <ImageIcon className="w-5 h-5" />;
-    if (n.includes("audio") || n.includes("music"))
+    if (n.includes("audio") || n.includes("music") || n.includes("voice"))
       return <Music2 className="w-5 h-5" />;
     if (n.includes("video")) return <Video className="w-5 h-5" />;
     if (
@@ -49,11 +67,127 @@ export default function HomePage() {
     )
       return <MessageSquare className="w-5 h-5" />;
     if (n.includes("avatar")) return <Bot className="w-5 h-5" />;
-    if (n.includes("document") || n.includes("doc"))
+    if (
+      n.includes("document") ||
+      n.includes("doc") ||
+      n.includes("text") ||
+      n.includes("writing")
+    )
       return <FileText className="w-5 h-5" />;
     if (n.includes("game")) return <Gamepad2 className="w-5 h-5" />;
     if (n.includes("3d")) return <Box className="w-5 h-5" />;
+    if (n.includes("analytics") || n.includes("data"))
+      return <BarChart3 className="w-5 h-5" />;
+    if (n.includes("automation") || n.includes("agents"))
+      return <Zap className="w-5 h-5" />;
+    if (
+      n.includes("education") ||
+      n.includes("tutorina") ||
+      n.includes("tutoring")
+    )
+      return <BookOpen className="w-5 h-5" />;
+    if (
+      n.includes("business") ||
+      n.includes("marketing") ||
+      n.includes("marketina")
+    )
+      return <Briefcase className="w-5 h-5" />;
+    if (n.includes("productivity") || n.includes("workflow"))
+      return <Settings className="w-5 h-5" />;
+    if (n.includes("ai") || n.includes("intelligence") || n.includes("machine"))
+      return <Brain className="w-5 h-5" />;
+    if (n.includes("social") || n.includes("community"))
+      return <Users className="w-5 h-5" />;
+    if (n.includes("web") || n.includes("website") || n.includes("online"))
+      return <Globe className="w-5 h-5" />;
+    if (n.includes("database") || n.includes("storage"))
+      return <Database className="w-5 h-5" />;
+    if (n.includes("hardware") || n.includes("device"))
+      return <Cpu className="w-5 h-5" />;
+    if (n.includes("creative") || n.includes("design"))
+      return <Sparkles className="w-5 h-5" />;
+    if (n.includes("goal") || n.includes("target") || n.includes("objective"))
+      return <Target className="w-5 h-5" />;
+    if (n.includes("idea") || n.includes("innovation"))
+      return <Lightbulb className="w-5 h-5" />;
     return <Palette className="w-5 h-5" />;
+  };
+
+  const getCategoryIconBg = (name) => {
+    const n = (name || "").toLowerCase();
+    if (
+      n.includes("code") ||
+      n.includes("dev") ||
+      n.includes("program") ||
+      n.includes("codina")
+    )
+      return "bg-gradient-to-br from-blue-50 to-blue-100";
+    if (
+      n.includes("image") ||
+      n.includes("photo") ||
+      n.includes("design") ||
+      n.includes("art")
+    )
+      return "bg-gradient-to-br from-pink-50 to-pink-100";
+    if (n.includes("audio") || n.includes("music") || n.includes("voice"))
+      return "bg-gradient-to-br from-purple-50 to-purple-100";
+    if (n.includes("video")) return "bg-gradient-to-br from-red-50 to-red-100";
+    if (
+      n.includes("chat") ||
+      n.includes("assistant") ||
+      n.includes("bot") ||
+      n.includes("companion")
+    )
+      return "bg-gradient-to-br from-green-50 to-green-100";
+    if (n.includes("avatar"))
+      return "bg-gradient-to-br from-indigo-50 to-indigo-100";
+    if (
+      n.includes("document") ||
+      n.includes("doc") ||
+      n.includes("text") ||
+      n.includes("writing")
+    )
+      return "bg-gradient-to-br from-yellow-50 to-yellow-100";
+    if (n.includes("game"))
+      return "bg-gradient-to-br from-orange-50 to-orange-100";
+    if (n.includes("3d")) return "bg-gradient-to-br from-cyan-50 to-cyan-100";
+    if (
+      n.includes("business") ||
+      n.includes("marketing") ||
+      n.includes("marketina")
+    )
+      return "bg-gradient-to-br from-emerald-50 to-emerald-100";
+    if (n.includes("productivity") || n.includes("workflow"))
+      return "bg-gradient-to-br from-violet-50 to-violet-100";
+    if (n.includes("analytics") || n.includes("data"))
+      return "bg-gradient-to-br from-teal-50 to-teal-100";
+    if (n.includes("automation") || n.includes("agents"))
+      return "bg-gradient-to-br from-rose-50 to-rose-100";
+    if (
+      n.includes("education") ||
+      n.includes("tutorina") ||
+      n.includes("tutoring")
+    )
+      return "bg-gradient-to-br from-amber-50 to-amber-100";
+    if (n.includes("ai") || n.includes("intelligence") || n.includes("machine"))
+      return "bg-gradient-to-br from-sky-50 to-sky-100";
+    if (n.includes("social") || n.includes("community"))
+      return "bg-gradient-to-br from-lime-50 to-lime-100";
+    if (n.includes("web") || n.includes("website") || n.includes("online"))
+      return "bg-gradient-to-br from-blue-50 to-blue-100";
+    if (n.includes("database") || n.includes("storage"))
+      return "bg-gradient-to-br from-slate-50 to-slate-100";
+    if (n.includes("hardware") || n.includes("device"))
+      return "bg-gradient-to-br from-gray-50 to-gray-100";
+    if (n.includes("creative") || n.includes("design"))
+      return "bg-gradient-to-br from-fuchsia-50 to-fuchsia-100";
+    if (n.includes("goal") || n.includes("target") || n.includes("objective"))
+      return "bg-gradient-to-br from-orange-50 to-orange-100";
+    if (n.includes("idea") || n.includes("innovation"))
+      return "bg-gradient-to-br from-yellow-50 to-yellow-100";
+    if (n.includes("miscellaneous") || n.includes("utilities"))
+      return "bg-gradient-to-br from-slate-50 to-slate-100";
+    return "bg-gradient-to-br from-gray-50 to-gray-100";
   };
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -180,75 +314,155 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl md:text-5xl mb-4">
-            Discover the Best AI Tools & Agents
-          </h1>
-          <p className="max-w-3xl mx-auto text-base text-gray-600 mb-6">
-            Find, compare, and choose from thousands of AI-powered tools and
-            agents to supercharge your workflow and boost productivity.
-          </p>
+      <section className="relative  overflow-hidden py-2">
+        {/* Organic shaped container with diagonal lines */}
+        <div className="relative max-w-7xl mx-auto">
+          <div
+            className="relative bg-white overflow-hidden"
+            style={{
+              width: "1000px",
+              height: "650px",
+              margin: "0 auto",
+              borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%",
+            }}
+          >
+            {/* Diagonal lines inside the circle */}
+            <div
+              className="absolute inset-0 opacity-50"
+              style={{
+                backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(156, 146, 172, 0.3) 4px, rgba(156, 146, 172, 0.3) 5px)`,
+              }}
+            ></div>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-6">
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Search for AI tools, agents, or categories..."
-                  className="pl-12 pr-12 py-3 text-base border-2 border-gray-200 rounded-full"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={clearSearch}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    type="button"
+            {/* Content inside the circle */}
+            <div className="relative z-10 flex flex-col items-center justify-center h-full px-8 py-16 text-center">
+              <h1 className="text-[58px] font-bold text-gray-900 sm:text-4xl md:text-5xl mb-4 max-w-[600px] mx-auto">
+                Discover the Best{" "}
+                <span
+                  className="bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 bg-clip-text text-transparent"
+                  style={{
+                    background:
+                      "linear-gradient(45deg,  #3b82f6,rgb(213, 23, 118),rgb(33, 173, 77) ,  #8b5cf6, #ec4899)",
+                    backgroundSize: "400% 400%",
+                    animation: "gradientShift 6s ease-in-out infinite",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  AI Tools & Agents
+                </span>
+              </h1>
+              <p className="max-w-3xl mx-auto text-base text-gray-600 mb-6">
+                Find, compare, and choose from thousands of AI-powered tools and
+                agents to supercharge your workflow and boost productivity.
+              </p>
+
+              {/* Search Bar */}
+              <div className="max-w-6xl mx-auto mb-6">
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <div className="moving-border">
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
+                        <Input
+                          placeholder="Search for AI tools, agents, or categories..."
+                          className="pl-12 lg:w-[410px] pr-12 py-3 text-base border-0 rounded-full h-[58px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-offset-[-2px] bg-transparent"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                        />
+                        {searchQuery && (
+                          <button
+                            onClick={clearSearch}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                            type="button"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    className="rounded-full px-6 py-3 h-[58px] text-[18px]"
+                    onClick={handleSearch}
                   >
-                    <X className="w-5 h-5" />
-                  </button>
-                )}
+                    Search
+                  </Button>
+                </div>
               </div>
-              <Button className="rounded-full px-6 py-3" onClick={handleSearch}>
-                Search
-              </Button>
-            </div>
-          </div>
 
-          {/* Popular Categories */}
-          <div className="flex flex-wrap justify-center gap-3 mb-4">
-            <span className="text-gray-600 mr-2">Popular categories:</span>
-            {topCategories.map((category) => (
-              <Badge
-                key={category.id}
-                variant="secondary"
-                className="cursor-pointer hover:bg-gray-200"
-                onClick={() =>
-                  router.push(
-                    `/explore?category=${category.slug || category.id}`
-                  )
-                }
-              >
-                {category.name}
-              </Badge>
-            ))}
+              {/* Popular Categories */}
+              <div className="max-w-6xl mx-auto ">
+                <div className="text-gray-600 mb-2 text-lg">
+                  Popular categories
+                </div>
+                <div className="flex flex-col gap-3 mb-4">
+                  {/* First row - 3 badges */}
+                  <div className="flex justify-center gap-3">
+                    {topCategories.slice(0, 3).map((category) => (
+                      <Badge
+                        key={category.id}
+                        variant="secondary"
+                        className="cursor-pointer hover:bg-gray-200 font-[400]"
+                        onClick={() =>
+                          router.push(
+                            `/explore?category=${category.slug || category.id}`
+                          )
+                        }
+                      >
+                        {category.name}
+                      </Badge>
+                    ))}
+                  </div>
+                  {/* Second row - 2 badges */}
+                  <div className="flex justify-center gap-3">
+                    {topCategories.slice(3, 5).map((category) => (
+                      <Badge
+                        key={category.id}
+                        variant="secondary"
+                        className="cursor-pointer hover:bg-gray-200 font-[400]"
+                        onClick={() =>
+                          router.push(
+                            `/explore?category=${category.slug || category.id}`
+                          )
+                        }
+                      >
+                        {category.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Browse by Category */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Browse by Category
+      <section className="py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50 relative">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-40">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(156, 146, 172, 0.15) 3px, rgba(156, 146, 172, 0.15) 4px)`,
+            }}
+          ></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">
+              Browse by{" "}
+              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Category
+              </span>
             </h2>
             {dbCategories.length > 0 && (
               <div className="flex items-center space-x-2">
@@ -274,17 +488,17 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="relative w-full max-w-full">
+          <div className="relative w-full max-w-full pb-4">
             {dbCategories.length > 0 ? (
               <div
                 ref={emblaRef}
                 className="overflow-hidden scrollbar-hide w-full"
               >
-                <div className="flex">
+                <div className="flex py-2">
                   {dbCategories.map((category, idx) => (
                     <div
                       key={`${category.id}-${idx}`}
-                      className="flex-[0_0_176px] min-w-0 pl-4"
+                      className="flex-[0_0_200px] min-w-0 pl-4 first:pl-0"
                     >
                       <Link
                         href={`/explore?category=${
@@ -292,44 +506,56 @@ export default function HomePage() {
                         }`}
                         className="block"
                       >
-                        <Card className="hover:shadow-md transition-shadow cursor-pointer h-40 w-40 flex flex-col items-center justify-center text-center p-4 rounded-2xl border border-gray-200 mr-4">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl mb-2">
-                            {getCategoryIcon(category.name)}
+                        <div className="group hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-44 w-40 flex flex-col items-center justify-center text-center p-4 rounded-3xl border-0 bg-gradient-to-br from-white to-gray-50 mr-4 shadow-lg hover:shadow-2xl">
+                          <div
+                            className={`w-16 h-16 ${getCategoryIconBg(
+                              category.name
+                            )} rounded-2xl flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                          >
+                            <span className="text-gray-700 drop-shadow-sm">
+                              {getCategoryIcon(category.name)}
+                            </span>
                           </div>
-                          <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 leading-snug">
+                          <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 transition-colors duration-300 px-1">
                             {category.name}
                           </h3>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 font-medium">
                             {categoryCounts[category.id] || 0} tools available
                           </p>
-                        </Card>
+                        </div>
                       </Link>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="flex space-x-4 pb-4 overflow-x-auto scrollbar-hide w-full">
+              <div className="flex gap-4 pb-4 overflow-x-auto scrollbar-hide w-full py-2">
                 {dbCategories.map((category, idx) => (
                   <div
                     key={`${category.id}-${idx}`}
-                    className="flex-[0_0_176px] min-w-0 pl-4"
+                    className="flex-[0_0_180px] min-w-0"
                   >
                     <Link
                       href={`/explore?category=${category.slug || category.id}`}
                       className="block"
                     >
-                      <Card className="hover:shadow-md transition-shadow cursor-pointer h-40 w-40 flex flex-col items-center justify-center text-center p-4 rounded-2xl border border-gray-200 mr-4">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl mb-2">
-                          {getCategoryIcon(category.name)}
+                      <div className="group hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-44 w-40 flex flex-col items-center justify-center text-center p-4 rounded-3xl border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg hover:shadow-2xl">
+                        <div
+                          className={`w-16 h-16 ${getCategoryIconBg(
+                            category.name
+                          )} rounded-2xl flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                        >
+                          <span className="text-gray-700 drop-shadow-sm">
+                            {getCategoryIcon(category.name)}
+                          </span>
                         </div>
-                        <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 leading-snug">
+                        <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 transition-colors duration-300 px-1">
                           {category.name}
                         </h3>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 font-medium">
                           {categoryCounts[category.id] || 0} tools available
                         </p>
-                      </Card>
+                      </div>
                     </Link>
                   </div>
                 ))}
@@ -342,8 +568,18 @@ export default function HomePage() {
       </section>
 
       {/* Recommended AI Stacks */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-purple-50 relative">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-35">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `repeating-linear-gradient(60deg, transparent, transparent 5px, rgba(156, 146, 172, 0.12) 5px, rgba(156, 146, 172, 0.12) 6px)`,
+            }}
+          ></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Recommended AI Stacks
@@ -358,16 +594,16 @@ export default function HomePage() {
               const colorClass =
                 idx % 3 === 0
                   ? {
-                      bg: "bg-blue-50 border-blue-200",
+                      bg: "bg-white border-blue-200",
                       chip: "bg-blue-100 text-blue-600",
                     }
                   : idx % 3 === 1
                   ? {
-                      bg: "bg-green-50 border-green-200",
-                      chip: "bg-green-100 text-green-600",
+                      bg: "bg-white border-emerald-200",
+                      chip: "bg-emerald-100 text-emerald-600",
                     }
                   : {
-                      bg: "bg-purple-50 border-purple-200",
+                      bg: "bg-white border-purple-200",
                       chip: "bg-purple-100 text-purple-600",
                     };
 
@@ -379,13 +615,13 @@ export default function HomePage() {
               return (
                 <Card
                   key={stack.id}
-                  className={`overflow-hidden border-2 h-full flex flex-col ${colorClass.bg}`}
+                  className={`group hover:shadow-lg transition-all duration-300 overflow-hidden border-2 h-full flex flex-col ${colorClass.bg} rounded-2xl`}
                 >
                   <CardContent className="p-6 flex flex-col h-full">
                     {/* Header */}
                     <div className="flex items-center gap-3 mb-4">
                       <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${colorClass.chip}`}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold ${colorClass.chip}`}
                       >
                         {stack.name.charAt(0)}
                       </div>
@@ -408,7 +644,7 @@ export default function HomePage() {
                         return (
                           <div
                             key={product.id}
-                            className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
+                            className="bg-gray-50 rounded-lg p-4 border border-gray-100"
                           >
                             <div className="flex items-center justify-between">
                               <div>

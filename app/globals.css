@@ -31,6 +31,56 @@
   }
 }
 
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes rotateAround {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.moving-border {
+  position: relative;
+  border: 2px solid #e5e7eb;
+  border-radius: 9999px;
+  overflow: visible;
+}
+
+.moving-border::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, #4f46e5, #9333ea);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translateY(calc(-50% - 2px));
+  transform-origin: 0 calc(50% + 2px);
+  animation: rotateAround 2s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.moving-border > * {
+  position: relative;
+  z-index: 10;
+  background: white;
+  border-radius: 9999px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

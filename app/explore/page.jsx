@@ -27,6 +27,7 @@ export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
+  const [filteredCount, setFilteredCount] = useState(0);
 
   const handleCategoryChange = (categoryId, checked) => {
     if (checked) {
@@ -50,6 +51,8 @@ export default function ExplorePage() {
     setSelectedCategories([]);
     setSelectedTags([]);
     setSearchQuery("");
+    // Clear all URL parameters
+    router.push("/explore");
   };
 
   const clearSearch = () => {
@@ -57,6 +60,25 @@ export default function ExplorePage() {
     // Also clear the URL search parameter
     const params = new URLSearchParams(searchParams);
     params.delete("search");
+    const newUrl = params.toString()
+      ? `/explore?${params.toString()}`
+      : "/explore";
+    router.push(newUrl);
+  };
+
+  const handleFilteredCountChange = (count) => {
+    setFilteredCount(count);
+  };
+
+  const handleSearchQueryChange = (newQuery) => {
+    setSearchQuery(newQuery);
+    // Update URL with new search query
+    const params = new URLSearchParams(searchParams);
+    if (newQuery.trim()) {
+      params.set("search", newQuery.trim());
+    } else {
+      params.delete("search");
+    }
     const newUrl = params.toString()
       ? `/explore?${params.toString()}`
       : "/explore";
@@ -201,9 +223,25 @@ export default function ExplorePage() {
           <div className="lg:w-80 space-y-6">
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Filter className="w-5 h-5" />
-                  <h3 className="font-semibold">Filters</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-5 h-5" />
+                    <h3 className="font-semibold">Filters</h3>
+                  </div>
+                  {(selectedCategories.length > 0 ||
+                    selectedTags.length > 0 ||
+                    searchQuery.trim()) && (
+                    // <Button
+                    //   variant="outline"
+                    //   size="sm"
+                    //   onClick={removeAllFilters}
+                    //   className="flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:bg-gray-50 p-0"
+                    // >
+                    <X
+                      className="w-5 h-5 border border-gray-600 rounded-full hover:bg-gray-50 cursor-pointer"
+                      onClick={removeAllFilters}
+                    />
+                  )}
                 </div>
 
                 {/* Categories Filter */}
@@ -278,9 +316,29 @@ export default function ExplorePage() {
             {/* All Tools & Agents */}
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  All Tools & Agents
-                </h2>
+                <div>
+                  {selectedCategories.length > 0 ||
+                  selectedTags.length > 0 ||
+                  searchQuery.trim() ? (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {filteredCount === 0
+                        ? "No tools found"
+                        : `Showing ${filteredCount} ${
+                            filteredCount <= 1 ? "tool" : "tools"
+                          }`}
+                    </p>
+                  ) : (
+                    <>
+                      {/* <h2 className="text-2xl font-bold text-gray-900">
+                        All Tools & Agents
+                      </h2> */}
+                      <p className="text-sm text-gray-600 mt-1">
+                        Showing {filteredCount}{" "}
+                        {filteredCount <= 1 ? "tool" : "tools"}{" "}
+                      </p>
+                    </>
+                  )}
+                </div>
                 {(selectedCategories.length > 0 ||
                   selectedTags.length > 0 ||
                   searchQuery.trim()) && (
@@ -299,6 +357,8 @@ export default function ExplorePage() {
                 selectedCategories={selectedCategories}
                 selectedTags={selectedTags}
                 searchQuery={searchQuery}
+                onFilteredCountChange={handleFilteredCountChange}
+                onSearchQueryChange={handleSearchQueryChange}
               />
             </div>
           </div>

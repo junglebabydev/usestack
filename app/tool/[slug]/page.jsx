@@ -326,9 +326,11 @@ export default function ToolDetailPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-3">
                   {product.name}
                 </h1>
-                <p className="text-gray-600 text-lg leading-relaxed mb-4">
-                  {product.description || "No description available."}
-                </p>
+                {product.tagline && (
+                  <p className="text-gray-600 text-lg leading-relaxed mb-4">
+                    {product.tagline}
+                  </p>
+                )}
 
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -381,26 +383,34 @@ export default function ToolDetailPage() {
             </div>
 
             <div className="w-full mb-6">
-              <div className="relative aspect-video bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-lg overflow-hidden">
-                {product.banner_url ? (
+              {/* Badge above the image */}
+              <div className="mb-2">
+                <Badge className="bg-black/50 text-white border-0">
+                  {product.is_verified ? "Verified" : "New"}
+                </Badge>
+              </div>
+
+              <div className="relative rounded-lg overflow-hidden">
+                {product.tool_thumbnail_url ? (
+                  <img
+                    src={product.tool_thumbnail_url}
+                    alt={`${product.name} interface preview`}
+                    className="w-full h-full object-contain"
+                  />
+                ) : product.banner_url ? (
                   <img
                     src={product.banner_url}
                     alt={`${product.name} interface preview`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
                     <div className="text-white text-center">
                       <div className="text-6xl mb-4">🚀</div>
                       <div className="text-xl opacity-80">{product.name}</div>
                     </div>
                   </div>
                 )}
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-black/50 text-white border-0">
-                    {product.is_verified ? "Verified" : "New"}
-                  </Badge>
-                </div>
                 <div className="absolute bottom-4 right-4">
                   <Badge
                     variant="secondary"
@@ -441,8 +451,17 @@ export default function ToolDetailPage() {
                     <div className="space-y-6">
                       <div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                          About {product.company?.name || "Unknown Company"}
+                          About {product.name}
                         </h2>
+                        <p className="text-gray-700 leading-relaxed mb-6">
+                          {product.description || "No description available."}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                          About {product.company?.name || "Unknown Company"}
+                        </h3>
                         <p className="text-gray-700 leading-relaxed mb-6">
                           {product.company?.name || "This company"} has been at
                           the forefront of AI technology, creating innovative
@@ -460,20 +479,20 @@ export default function ToolDetailPage() {
                             Website
                           </div>
                           <div className="text-blue-600 text-sm">
-                            {product.company?.website_url ? (
+                            {product.website_url ? (
                               <a
-                                href={product.company.website_url}
+                                href={product.website_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="hover:underline"
                               >
-                                {product.company.website_url.replace(
+                                {product.website_url.replace(
                                   /^https?:\/\//,
                                   ""
                                 )}
                               </a>
                             ) : (
-                              "www.example.com"
+                              "No website available"
                             )}
                           </div>
                         </div>
@@ -497,7 +516,7 @@ export default function ToolDetailPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-lg">
                           <Users className="w-8 h-8 text-blue-600 mb-2" />
                           <div className="font-semibold text-gray-900 text-sm mb-1">
@@ -522,6 +541,9 @@ export default function ToolDetailPage() {
                                 : "")}
                           </div>
                         </div>
+
+                        {/* Empty div to maintain grid alignment */}
+                        <div></div>
                       </div>
                     </div>
                   </TabsContent>

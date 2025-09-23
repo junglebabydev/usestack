@@ -99,9 +99,9 @@ export default function Header() {
           </nav>
 
           {/* Action Buttons */}
-          <div className="flex items-center space-x-3">
-            {/* Login/Sign up button hidden */}
-          </div>
+          {/* <div className="flex items-center space-x-3"> */}
+          {/* Login/Sign up button hidden */}
+          {/* </div> */}
         </div>
       </div>
     </header>
