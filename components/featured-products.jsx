@@ -515,7 +515,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
               className="hover:shadow-lg transition-shadow overflow-hidden h-[440px] flex flex-col"
             >
               {/* Product Image - Fixed height */}
-              <div className="h-32 bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
+              <div className="h-48 bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
                 {product.banner_url ? (
                   <img
                     src={product.banner_url}
@@ -550,12 +550,12 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
 
               <CardContent className="p-6 flex flex-col flex-1 min-h-0">
                 {/* Product Name - Fixed height */}
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2 h-12 flex items-center">
+                <h3 className="font-semibold text-lg mb-1 line-clamp-2  flex items-center">
                   {product.name}
                 </h3>
 
                 {/* Tagline - Fixed height */}
-                <div className="h-10 mb-3">
+                <div className="h-10 mb-1">
                   {product.tagline && (
                     <p className="text-sm text-gray-600 line-clamp-2">
                       {product.tagline}
@@ -564,7 +564,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                 </div>
 
                 {/* Categories as pills - Fixed height */}
-                <div className="h-8 mb-3 flex flex-wrap gap-2 overflow-hidden">
+                <div className="h-8 mb-2 flex flex-wrap gap-2 overflow-hidden">
                   {(() => {
                     const names = [
                       product?.category?.name,
@@ -594,9 +594,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                   })()}
                 </div>
 
-                {/* Tags - Scrollable section with fixed height */}
+                {/* Tags - Two lines only */}
                 <div className="flex-1 min-h-0 mb-4">
-                  <div className="h-20 overflow-y-auto scrollbar-hide">
+                  <div className="h-14 overflow-hidden">
                     <div className="flex flex-wrap gap-2">
                       {(() => {
                         const tagNames = [
@@ -606,7 +606,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                             .filter(Boolean),
                         ]
                           .filter(Boolean)
-                          .slice(0, 8); // Show more tags since we have scroll
+                          .slice(0, 3); // Strictly limit to 4 tags for exactly 2 lines
 
                         return tagNames.map((tag, index) => (
                           <Badge
