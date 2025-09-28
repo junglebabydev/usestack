@@ -51,6 +51,7 @@
     transform: rotate(360deg);
   }
 }
+
 .moving-border {
   position: relative;
   border: 2px solid #e5e7eb;
@@ -160,4 +161,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.light-rays-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
 }
