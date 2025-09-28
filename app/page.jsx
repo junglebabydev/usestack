@@ -8,6 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { LaserFlowBoxExample } from "./laserHero";
+import LightRays from "./LaserFlow";
+
 import {
   Search,
   ArrowRight,
@@ -314,33 +317,29 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className="min-h-screen bg-black">
       <Header />
+      {/* <LaserFlowBoxExample /> */}
 
       {/* Hero Section */}
-      <section className="relative  overflow-hidden py-2">
-        {/* Organic shaped container with diagonal lines */}
-        <div className="relative max-w-7xl mx-auto">
-          <div
-            className="relative bg-white overflow-hidden"
-            style={{
-              width: "1000px",
-              height: "650px",
-              margin: "0 auto",
-              borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%",
-            }}
-          >
-            {/* Diagonal lines inside the circle */}
-            <div
-              className="absolute inset-0 opacity-50"
-              style={{
-                backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(156, 146, 172, 0.3) 4px, rgba(156, 146, 172, 0.3) 5px)`,
-              }}
-            ></div>
-
-            {/* Content inside the circle */}
-            <div className="relative z-10 flex flex-col items-center justify-center h-full px-8 py-16 text-center">
-              <h1 className="text-[58px] font-bold text-gray-900 sm:text-4xl md:text-5xl mb-4 max-w-[600px] mx-auto">
+      <div style={{ width: "100%", height: "100vh", position: "relative" }}>
+        <LightRays
+          raysOrigin="top-center"
+          raysColor="#00ffff"
+          raysSpeed={1.5}
+          lightSpread={0.8}
+          rayLength={1.2}
+          followMouse={true}
+          mouseInfluence={0.1}
+          noiseAmount={0.1}
+          distortion={0.05}
+          className="custom-rays"
+        />
+        <section className="absolute inset-0 flex items-center justify-center top-20">
+          {/* Content */}
+          <div className="relative max-w-7xl mx-auto w-full">
+            <div className="flex flex-col items-center justify-center px-8 text-center">
+              <h1 className="text-[58px] font-bold text-white sm:text-4xl md:text-5xl mb-4 max-w-[600px] mx-auto relative z-10">
                 Discover the Best{" "}
                 <span
                   className="bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 bg-clip-text text-transparent"
@@ -357,13 +356,13 @@ export default function HomePage() {
                   AI Tools & Agents
                 </span>
               </h1>
-              <p className="max-w-3xl mx-auto text-base text-gray-600 mb-6">
+              <p className="max-w-3xl mx-auto text-base text-gray-300 mb-6 relative z-10">
                 Find, compare, and choose from thousands of AI-powered tools and
                 agents to supercharge your workflow and boost productivity.
               </p>
 
               {/* Search Bar */}
-              <div className="max-w-6xl mx-auto mb-6">
+              <div className="max-w-6xl mx-auto mb-6 relative z-10">
                 <div className="flex gap-3">
                   <div className="relative flex-1">
                     <div className="moving-border">
@@ -371,7 +370,7 @@ export default function HomePage() {
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
                         <Input
                           placeholder="Search for AI tools, agents, or categories..."
-                          className="pl-12 lg:w-[410px] pr-12 py-3 text-base border-0 rounded-full h-[58px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-offset-[-2px] bg-transparent"
+                          className="pl-12 lg:w-[410px] pr-12 py-3 text-base border-0 rounded-full h-[58px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-offset-[-2px] bg-transparent text-black placeholder-gray-400"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           onKeyPress={handleKeyPress}
@@ -379,7 +378,7 @@ export default function HomePage() {
                         {searchQuery && (
                           <button
                             onClick={clearSearch}
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors z-10"
                             type="button"
                           >
                             <X className="w-5 h-5" />
@@ -389,7 +388,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <Button
-                    className="rounded-full px-6 py-3 h-[58px] text-[18px]"
+                    className="rounded-full px-6 py-3 h-[58px] text-[18px] bg-white text-black hover:bg-gray-200"
                     onClick={handleSearch}
                   >
                     Search
@@ -398,8 +397,8 @@ export default function HomePage() {
               </div>
 
               {/* Popular Categories */}
-              <div className="max-w-6xl mx-auto ">
-                <div className="text-gray-600 mb-2 text-lg">
+              <div className="max-w-6xl mx-auto relative z-10">
+                <div className="bg-gradient-to-r ml-2 mb-4 from-indigo-500 via-white-500 to-pink-500 bg-clip-text text-transparent">
                   Popular categories
                 </div>
                 <div className="flex flex-col gap-3 mb-4">
@@ -409,7 +408,7 @@ export default function HomePage() {
                       <Badge
                         key={category.id}
                         variant="secondary"
-                        className="cursor-pointer hover:bg-gray-200 font-[400]"
+                        className="cursor-pointer font-[400] bg-[#bdbdbd] hover:bg-white text-black border-gray-600"
                         onClick={() =>
                           router.push(
                             `/explore?category=${category.slug || category.id}`
@@ -426,7 +425,7 @@ export default function HomePage() {
                       <Badge
                         key={category.id}
                         variant="secondary"
-                        className="cursor-pointer hover:bg-gray-200 font-[400]"
+                        className="cursor-pointer font-[400] bg-[#bdbdbd] hover:bg-white text-black border-gray-600"
                         onClick={() =>
                           router.push(
                             `/explore?category=${category.slug || category.id}`
@@ -441,13 +440,12 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
+        </section>
+      </div>
       {/* Browse by Category */}
       <section className="py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50 relative">
         {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 bg-black">
           <div
             className="absolute inset-0"
             style={{
@@ -458,7 +456,7 @@ export default function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-white">
               Browse by{" "}
               <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
                 Category
@@ -506,17 +504,17 @@ export default function HomePage() {
                         }`}
                         className="block"
                       >
-                        <div className="group hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-44 w-40 flex flex-col items-center justify-center text-center p-4 rounded-3xl border-0 bg-gradient-to-br from-white to-gray-50 mr-4 shadow-lg hover:shadow-2xl">
+                        <div className="group hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-44 w-40 flex flex-col items-center justify-center text-center p-4 rounded-3xl border-0  bg-transparent mr-4 shadow-lg hover:shadow-2xl">
                           <div
                             className={`w-16 h-16 ${getCategoryIconBg(
                               category.name
-                            )} rounded-2xl flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                            )} rounded-full flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                           >
                             <span className="text-gray-700 drop-shadow-sm">
                               {getCategoryIcon(category.name)}
                             </span>
                           </div>
-                          <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 transition-colors duration-300 px-1">
+                          <h3 className="font-normal text-xs text-white line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 transition-colors duration-300 px-1">
                             {category.name}
                           </h3>
                           <p className="text-xs text-gray-500 font-medium">
@@ -570,21 +568,27 @@ export default function HomePage() {
       {/* Recommended AI Stacks */}
       <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-purple-50 relative">
         {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-35">
+        <div className="absolute inset-0 bg-[#090b39]">
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `repeating-linear-gradient(60deg, transparent, transparent 5px, rgba(156, 146, 172, 0.12) 5px, rgba(156, 146, 172, 0.12) 6px)`,
+              backgroundImage: `repeating-linear-gradient(60deg, transparent, transparent 3px, rgba(156, 146, 172, 0.15) 3px, rgba(156, 146, 172, 0.15) 4px)`,
             }}
           ></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            {/* <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Recommended AI Stacks
+            </h2> */}
+            <h2 className="text-3xl font-bold text-white">
+              Recommended{" "}
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                AI Stacks
+              </span>
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-500 mt-1">
               Curated collections of AI tools and agents for specific use cases
             </p>
           </div>

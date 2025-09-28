@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ShareModal from "@/components/ui/share-modal";
 import ReportModal from "@/components/ui/report-modal";
+import SocialFeeds from "@/components/social-feeds";
 import {
   Star,
   ExternalLink,
@@ -76,43 +77,6 @@ const sampleReviews = [
   },
 ];
 
-const socialFeeds = [
-  {
-    platform: "X (Twitter)",
-    posts: [
-      {
-        user: "@techwriter_pro",
-        content:
-          "Just tried the new AI writing tool and I'm blown away! Generated a 2000-word article in minutes with perfect SEO optimization. #AIWriting #ContentCreation",
-        likes: 45,
-        retweets: 12,
-        time: "2h",
-      },
-      {
-        user: "@marketing_guru",
-        content:
-          "The brand voice consistency feature is a game-changer. Finally, an AI tool that actually understands my company's tone! 🚀",
-        likes: 32,
-        retweets: 8,
-        time: "5h",
-      },
-    ],
-  },
-  {
-    platform: "LinkedIn",
-    posts: [
-      {
-        user: "Jennifer Smith, Content Manager",
-        content:
-          "Our team's productivity has increased by 300% since implementing this AI writing solution. The quality is consistently high and it integrates seamlessly with our existing workflow.",
-        likes: 89,
-        comments: 23,
-        time: "1d",
-      },
-    ],
-  },
-];
-
 const teamMembers = [
   {
     name: "Alex Thompson",
@@ -144,7 +108,6 @@ export default function ToolDetailPage() {
   const [error, setError] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [activeSocialPlatform, setActiveSocialPlatform] = useState("x");
   const [latestNews, setLatestNews] = useState([
     { title: "New AI Writing Features Released", date: "2 days ago" },
     { title: "Platform Security Update", date: "1 week ago" },
@@ -323,9 +286,20 @@ export default function ToolDetailPage() {
           <div className="lg:col-span-5">
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                  {product.name}
-                </h1>
+                {/* Company Logo and Product Name */}
+                <div className="flex items-center gap-4 mb-3">
+                  {/* {(product.logo_url || product.company?.logo_url) && (
+                    <img
+                      src={product.logo_url || product.company.logo_url}
+                      alt={`${product.company?.name || product.name} logo`}
+                      className="h-12 w-12 object-contain flex-shrink-0"
+                    />
+                  )} */}
+
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {product.name}
+                  </h1>
+                </div>
                 {product.tagline && (
                   <p className="text-gray-600 text-lg leading-relaxed mb-4">
                     {product.tagline}
@@ -555,119 +529,10 @@ export default function ToolDetailPage() {
                           Social Feeds
                         </h2>
 
-                        {/* Platform Pills */}
-                        <div className="flex gap-2 mb-6">
-                          <button
-                            onClick={() => setActiveSocialPlatform("x")}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                              activeSocialPlatform === "x"
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            X (Twitter)
-                          </button>
-                          <button
-                            onClick={() => setActiveSocialPlatform("linkedin")}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                              activeSocialPlatform === "linkedin"
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            LinkedIn
-                          </button>
-                        </div>
-
-                        {/* X (Twitter) Content */}
-                        {activeSocialPlatform === "x" && (
-                          <div className="space-y-4">
-                            {socialFeeds
-                              .find((p) => p.platform === "X (Twitter)")
-                              ?.posts.map((post, postIndex) => (
-                                <div
-                                  key={postIndex}
-                                  className="bg-gray-50 p-4 rounded-lg"
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                      {post.user.charAt(1).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <span className="font-semibold text-gray-900">
-                                          {post.user}
-                                        </span>
-                                        <span className="text-gray-500 text-sm">
-                                          • {post.time}
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-700 mb-3">
-                                        {post.content}
-                                      </p>
-                                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                                        <div className="flex items-center gap-1">
-                                          <ThumbsUp className="w-4 h-4" />
-                                          <span>{post.likes}</span>
-                                        </div>
-                                        {post.retweets && (
-                                          <div className="flex items-center gap-1">
-                                            <Share2 className="w-4 h-4" />
-                                            <span>{post.retweets}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        )}
-
-                        {/* LinkedIn Content */}
-                        {activeSocialPlatform === "linkedin" && (
-                          <div className="space-y-4">
-                            {socialFeeds
-                              .find((p) => p.platform === "LinkedIn")
-                              ?.posts.map((post, postIndex) => (
-                                <div
-                                  key={postIndex}
-                                  className="bg-gray-50 p-4 rounded-lg"
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                      {post.user.charAt(1).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <span className="font-semibold text-gray-900">
-                                          {post.user}
-                                        </span>
-                                        <span className="text-gray-500 text-sm">
-                                          • {post.time}
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-700 mb-3">
-                                        {post.content}
-                                      </p>
-                                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                                        <div className="flex items-center gap-1">
-                                          <ThumbsUp className="w-4 h-4" />
-                                          <span>{post.likes}</span>
-                                        </div>
-                                        {post.comments && (
-                                          <div className="flex items-center gap-1">
-                                            <MessageSquare className="w-4 h-4" />
-                                            <span>{post.comments}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        )}
+                        <SocialFeeds
+                          productId={product.id}
+                          toolName={product.name}
+                        />
                       </div>
                     </div>
                   </TabsContent>
