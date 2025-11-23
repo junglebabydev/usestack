@@ -512,8 +512,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
           (product) => (
             <Card
               key={product.id}
-              className="hover:shadow-lg transition-shadow overflow-hidden h-[440px] flex flex-col"
-            >
+              className="hover:shadow-lg transition-shadow overflow-hidden h-[400px] flex flex-col cursor-pointer"
+              onClick={()=>window.open(`${product.website_url}`)} > {/*To Directly Open the Tool Link in A new Tab We are Using window.open */} 
+
               {/* Product Image - Fixed height */}
               <div className="h-48 bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
                 {product.banner_url ? (
@@ -527,6 +528,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                 )}
 
                 {/* Background with gradient overlay or thumbnail */}
+                ++9--
                 {product.tool_thumbnail_url ? (
                   <div className="absolute inset-0">
                     <img
@@ -623,6 +625,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                 </div>
 
                 {/* Action Button - Fixed at bottom */}
+
+                {/* This Button is Currently Disabled So when the user clicks on the Tool image , it will directly redirect to the tool Link */}
+                {/*
                 <div className="mt-auto">
                   <Link
                     href={`/tool/${product.slug || product.id}`}
@@ -633,6 +638,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                     </Button>
                   </Link>
                 </div>
+                */
+                  }
               </CardContent>
             </Card>
           )

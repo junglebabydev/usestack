@@ -40,7 +40,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout>
+  
       <div className="space-y-6 ">
         {/* Header */}
         <div>
@@ -107,6 +107,5 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </AdminLayout>
   );
 }
