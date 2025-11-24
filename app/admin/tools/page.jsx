@@ -97,7 +97,6 @@ export default function AdminToolsListPage() {
   }
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">AI Tools</h1>
@@ -178,6 +177,5 @@ export default function AdminToolsListPage() {
           )}
         </div>
       </div>
-    </AdminLayout>
   );
 }

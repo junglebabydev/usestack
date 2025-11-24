@@ -2,7 +2,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div className='bg-white w-full h-[80vh] text-black flex flex-col items-center justify-center text-3xl font-medium'>Comming Soon...</div>
+    <div className='bg-white w-full h-[80vh] text-black flex flex-col items-center justify-center text-3xl font-medium'>COMING SOON...</div>
   )
 }
 

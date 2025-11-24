@@ -21,8 +21,6 @@ export default function NewToolPage() {
   if (!isAdminLoggedIn) return null;
 
   return (
-    <AdminLayout>
       <NewProductForm />
-    </AdminLayout>
   );
 }
