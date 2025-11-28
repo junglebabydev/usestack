@@ -29,7 +29,13 @@ export default function SubmitToolPage() {
 
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState("")
+  const [submitError, setSubmitError] = useState("");
+  const [toolUrl, setToolUrl] = useState('');
+  const [scrapping, setScrapping] = useState(false);
+
+  const handleAddToolAutomatically = async()=>{
+      
+  };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -207,9 +213,31 @@ export default function SubmitToolPage() {
             Share your AI tool with thousands of users. Fill out the form below to get your tool featured on obase.
           </p>
         </div>
+        {/* Fecth Tool by URL Block */}
+           <div className="space-y-3 p-5 border rounded-xl shadow-sm bg-white">
+        <span className="text-lg font-semibold">Add Tool Automatically</span>
+        <form className="flex flex-row items-center gap-3" onSubmit={(e) => handleAddToolAutomatically(e)}>
+          <Input
+            id="autofetch-url"
+            placeholder="Enter Tool Website URL…"
+            className="flex-1"
+            disabled={scrapping}
+            value={toolUrl}
+            onChange={(e) => setToolUrl(e.target.value)}
+          />
+          <Button type="submit" className="px-5" disabled={scrapping}> {scrapping ? <><Loader2 className="animate-spin" /> Fetching </> : "Fetch Tool"}</Button>
+        </form>
+      </div>
+       {/* Separator */}
+      <div className="flex items-center justify-center gap-3 mt-3 mb-3">
+        <div className="flex-1 border-t" />
+        <span className="text-gray-500 text-sm">or</span>
+        <div className="flex-1 border-t" />
+      </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
+           <fieldset disabled={scrapping} className="space-y-6 opacity-100">
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
@@ -446,7 +474,9 @@ export default function SubmitToolPage() {
               updates on your tool's status.
             </p>
           </div>
+        </fieldset>
         </form>
+        
       </div>
     </div>
   )
