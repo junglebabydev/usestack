@@ -479,7 +479,7 @@ useEffect(() => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/scrape`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: toolUrl }),
+      body: JSON.stringify({ url: toolUrl}),
     });
 
     const data = await response.json();
@@ -493,8 +493,6 @@ useEffect(() => {
        return ;
     }
     const  tool  = data;
-    console.log("data is: ", data);
-
     setFormData({
       ...formData,
       name: tool.name ?? "Hello",
@@ -529,6 +527,7 @@ useEffect(() => {
         title: "Error",
         description: "Failed to Load Tool Data, Please Try again",
         variant: "destructive",
+        duration: 5000,
       });
   }
   finally{
