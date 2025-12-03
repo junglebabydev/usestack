@@ -1,8 +1,11 @@
 import Header from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ExternalLink, Users, Zap, TrendingUp, Clock } from "lucide-react";
+import StackActions from "./stack-actions";
+import ToolCard from "./tool-card";
+import RetryButton from "./retry-button";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -26,6 +29,10 @@ const relatedStacks = [
 ];
 
 export default async function StackDetailPage({ params }) {
+  const { id } = await params;
+  
+  console.log("Stack ID requested:", id);
+  
   // Fetch stack from DB (by id or slug)
   const { data: stackData, error } = await supabase
     .from("stacks")
@@ -34,24 +41,57 @@ export default async function StackDetailPage({ params }) {
       id, name, description,
       product_stacks:product_stack_jnc(
         product:products(
-          id, name, slug, tagline,
+          id, name, slug, tagline, website_url, tool_thumbnail_url, tags,
           product_categories:product_category_jnc(
-            category:categories!product_category_jnc_category_id_fkey(name)
+            category:categories!product_category_jnc_category_id_fkey(id, name, slug)
+          ),
+          product_tags:product_tags_jnc(
+            tag:tags!product_tags_jnc_tag_id_fkey(id, name, slug)
           )
         )
       )
     `
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
+
   if (error || !stackData) {
-    notFound();
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <div className="text-6xl mb-6">😕</div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Oops! Stack Not Found
+            </h1>
+            <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+              We couldn't find the stack you're looking for. It may have been removed or the link might be incorrect.
+            </p>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <RetryButton />
+              <Link href="/">
+                <Button variant="outline">
+                  Go Home
+                </Button>
+              </Link>
+              <Link href="/explore">
+                <Button>
+                  Explore Tools
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const stackProducts = (stackData.product_stacks || [])
     .map((ps) => ps.product)
     .filter(Boolean);
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -116,15 +156,7 @@ export default async function StackDetailPage({ params }) {
               </div>
 
               <div className="flex gap-3">
-                <Button
-                  size="lg"
-                  className="bg-black text-white hover:bg-gray-800"
-                >
-                  Get Complete Stack
-                </Button>
-                <Button variant="outline" size="lg">
-                  Save Stack
-                </Button>
+                <StackActions stackId={stackData.id} />
               </div>
             </div>
           </div>
@@ -168,58 +200,10 @@ export default async function StackDetailPage({ params }) {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Tools & Agents in this Stack
               </h2>
-              <div className="space-y-6">
-                {stackProducts.map((tool) => {
-                  const categoryName = (tool.product_categories || [])
-                    .map((pc) => pc?.category?.name)
-                    .filter(Boolean)[0];
-                  return (
-                    <Card
-                      key={tool.id}
-                      className="hover:shadow-lg transition-shadow"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-6">
-                          <div className="w-16 h-16 bg-gray-900 rounded-lg flex-shrink-0"></div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-3">
-                              <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant="default">Tool</Badge>
-                                  {categoryName && (
-                                    <Badge variant="outline">
-                                      {categoryName}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                  {tool.name}
-                                </h3>
-                                {tool.tagline && (
-                                  <p className="text-gray-600 mb-3">
-                                    {tool.tagline}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="text-right"></div>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                              <div className="text-sm text-gray-500"></div>
-                              <div className="flex gap-2">
-                                <Link href={`/tool/${tool.slug || tool.id}`}>
-                                  <Button variant="outline" size="sm">
-                                    View Details
-                                  </Button>
-                                </Link>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {stackProducts.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
               </div>
             </div>
 

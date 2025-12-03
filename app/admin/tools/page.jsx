@@ -143,10 +143,10 @@ export default function AdminToolsListPage() {
                         <img
                           src={tool.tool_thumbnail_url}
                           alt={tool.name}
-                          className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-xl font-medium flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-lg font-medium flex-shrink-0">
                           {tool.name?.charAt(0)?.toUpperCase()}
                         </div>
                       )}

@@ -36,37 +36,47 @@ export default function ShareModal({ isOpen, onClose, url, title, description })
     }
   }, [isOpen])
 
+  const getShareUrl = () => {
+    if (url) return url
+    if (typeof window !== 'undefined') return window.location.href
+    return ''
+  }
+
   const shareData = {
     title: title || 'Check out this AI tool',
     text: description || 'I found this amazing AI tool that you might be interested in!',
-    url: url || window.location.href
+    url: getShareUrl()
   }
 
   const shareOnX = () => {
-    const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`
+    const shareUrl = getShareUrl()
+    const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareUrl)}`
     window.open(xUrl, '_blank')
   }
 
   const shareOnWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`
+    const shareUrl = getShareUrl()
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareUrl)}`
     window.open(whatsappUrl, '_blank')
   }
 
   const shareOnLinkedIn = () => {
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareData.url)}`
+    const shareUrl = getShareUrl()
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
     window.open(linkedinUrl, '_blank')
   }
 
   const copyUrl = async () => {
+    const shareUrl = getShareUrl()
     try {
-      await navigator.clipboard.writeText(shareData.url)
+      await navigator.clipboard.writeText(shareUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy URL:', err)
       // Fallback for older browsers
       const textArea = document.createElement('textarea')
-      textArea.value = shareData.url
+      textArea.value = shareUrl
       document.body.appendChild(textArea)
       textArea.select()
       document.execCommand('copy')
