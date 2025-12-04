@@ -1,46 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/admin-layout";
+import Link from "next/link";
 import KPICards from "@/components/kpi-cards";
 import ChartsSection from "@/components/charts-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Database } from "lucide-react";
-import Link from "next/link";
 
 export default function AdminDashboard() {
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    // Check if admin is logged in
-    const adminStatus = localStorage.getItem("adminLoggedIn");
-    if (adminStatus !== "true") {
-      router.push("/");
-      return;
-    }
-    setIsAdminLoggedIn(true);
-  }, [router]);
-
-  if (!isAdminLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Access Denied
-          </h1>
-          <p className="text-gray-600">
-            Please log in as admin to access this page.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-  
       <div className="space-y-6 ">
         {/* Header */}
         <div>

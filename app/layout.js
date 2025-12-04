@@ -2,6 +2,7 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
+import SessionProvider from "@/components/session-provider"
 
 /**
  * Metadata configuration for the application
@@ -77,7 +78,9 @@ html {
         `}</style>
       </head>
       <body>
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
         <Toaster />
       </body>
     </html>
