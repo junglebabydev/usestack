@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Settings, LogOut, User, Loader2 } from "lucide-react";
+import { ChevronDown, Settings, LogOut, User, Loader2, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -53,8 +53,8 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">×</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">o</span>
               </div>
               <span className="text-xl font-bold text-gray-900">obase</span>
             </Link>
@@ -115,8 +115,16 @@ export default function Header() {
               </Link>
             </nav>
 
-            {/* Auth Section */}
+            {/* Right Actions */}
             <div className="flex items-center space-x-3">
+              {/* Search Icon */}
+              <button 
+                onClick={() => router.push('/explore')}
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
               {status === "loading" ? (
                 <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
               ) : session ? (
@@ -127,7 +135,7 @@ export default function Header() {
                   onMouseLeave={() => setShowProfileDropdown(false)}
                 >
                   <button className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
                       <span className="text-sm font-medium">
                         {session.user?.name?.[0]?.toUpperCase() || session.user?.email?.[0]?.toUpperCase() || "U"}
                       </span>
@@ -166,9 +174,9 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                // User is not logged in - show login button
+                // User is not logged in - show Login button
                 <Link href="/login">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="rounded-lg border-gray-300">
                     <User className="w-4 h-4 mr-2" />
                     Login
                   </Button>
