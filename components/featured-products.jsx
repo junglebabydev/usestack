@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function FeaturedProducts({
@@ -510,87 +508,92 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
       >
         {(showAll ? filteredProducts : filteredProducts.slice(0, 6)).map(
           (product) => (
-            <Card
+            <Link
               key={product.id}
-              className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl"
+              href={`/tool/${product.slug || product.id}`}
+              className="block h-full"
             >
-              {/* Tool Screenshot/Thumbnail */}
-              <div className="h-48 bg-gray-100 relative overflow-hidden">
-                {product.tool_thumbnail_url ? (
-                  <img
-                    src={product.tool_thumbnail_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : product.banner_url ? (
-                  <img
-                    src={product.banner_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                      <span className="text-white text-2xl font-bold">
-                        {product.name?.charAt(0)?.toUpperCase() || "?"}
-                      </span>
+              <Card
+                className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer h-full"
+              >
+                {/* Tool Screenshot/Thumbnail */}
+                <div className="h-48 bg-gray-100 relative overflow-hidden">
+                  {product.tool_thumbnail_url ? (
+                    <img
+                      src={product.tool_thumbnail_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : product.banner_url ? (
+                    <img
+                      src={product.banner_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                        <span className="text-white text-2xl font-bold">
+                          {product.name?.charAt(0)?.toUpperCase() || "?"}
+                        </span>
+                      </div>
                     </div>
+                  )}
+                </div>
+
+                <CardContent className="p-5 flex flex-col flex-1">
+                  {/* Product Name */}
+                  <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                    {product.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">
+                    {product.tagline || product.description || "AI-powered tool"}
+                  </p>
+
+                  {/* Category Badge */}
+                  <div className="mb-3">
+                    {(() => {
+                      const categoryName = product?.category?.name || 
+                        (product?.product_categories || [])[0]?.category?.name;
+                      return categoryName ? (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 border-0 rounded-full font-medium"
+                        >
+                          {categoryName}
+                        </Badge>
+                      ) : null;
+                    })()}
                   </div>
-                )}
-              </div>
 
-              <CardContent className="p-5 flex flex-col flex-1">
-                {/* Product Name */}
-                <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                  {product.name}
-                </h3>
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {(() => {
+                      const tagNames = [
+                        ...(product?.tags || []),
+                        ...(product?.product_tags || [])
+                          .map((pt) => pt?.tag?.name)
+                          .filter(Boolean),
+                      ]
+                        .filter(Boolean)
+                        .slice(0, 3);
 
-                {/* Description */}
-                <p className="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">
-                  {product.tagline || product.description || "AI-powered tool"}
-                </p>
-
-                {/* Category Badge */}
-                <div className="mb-3">
-                  {(() => {
-                    const categoryName = product?.category?.name || 
-                      (product?.product_categories || [])[0]?.category?.name;
-                    return categoryName ? (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 border-0 rounded-full font-medium"
-                      >
-                        {categoryName}
-                      </Badge>
-                    ) : null;
-                  })()}
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {(() => {
-                    const tagNames = [
-                      ...(product?.tags || []),
-                      ...(product?.product_tags || [])
-                        .map((pt) => pt?.tag?.name)
-                        .filter(Boolean),
-                    ]
-                      .filter(Boolean)
-                      .slice(0, 3);
-
-                    return tagNames.map((tag, index) => (
-                      <Badge
-                        key={`${tag}-${index}`}
-                        variant="outline"
-                        className="text-xs px-3 py-1.5 bg-gray-50 text-gray-600 border-gray-200 rounded-full"
-                      >
-                        #{tag}
-                      </Badge>
-                    ));
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
+                      return tagNames.map((tag, index) => (
+                        <Badge
+                          key={`${tag}-${index}`}
+                          variant="outline"
+                          className="text-xs px-3 py-1.5 bg-gray-50 text-gray-600 border-gray-200 rounded-full"
+                        >
+                          #{tag}
+                        </Badge>
+                      ));
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           )
         )}
       </div>

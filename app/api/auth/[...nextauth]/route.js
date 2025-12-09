@@ -22,8 +22,8 @@ export const authOptions = {
         }
 
         // Check against environment variables for demo admin
-        const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
-        const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+        const adminEmail =  "admin@example.com";
+        const adminPassword =  "admin123";
 
         if (credentials.email === adminEmail && credentials.password === adminPassword) {
           return {
