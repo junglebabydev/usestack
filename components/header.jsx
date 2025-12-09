@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Settings, LogOut } from "lucide-react";
+import { ChevronDown, Settings, LogOut, User, Loader2, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,15 +19,10 @@ import { supabase } from "@/lib/supabase";
 
 export default function Header() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [dbCategories, setDbCategories] = useState([]);
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [loginCredentials, setLoginCredentials] = useState({
-    username: "",
-    password: "",
-  });
-  const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -43,44 +39,11 @@ export default function Header() {
     };
 
     fetchCategories();
-
-    // Check if admin is already logged in (from localStorage)
-    const adminStatus = localStorage.getItem("adminLoggedIn");
-    if (adminStatus === "true") {
-      setIsAdminLoggedIn(true);
-    }
   }, []);
 
-  const handleLogin = () => {
-    if (
-      loginCredentials.username === "admin" &&
-      loginCredentials.password === "admin"
-    ) {
-      setIsAdminLoggedIn(true);
-      setIsLoginDialogOpen(false);
-      setLoginError("");
-      setLoginCredentials({ username: "", password: "" });
-      localStorage.setItem("adminLoggedIn", "true");
-      // Redirect to admin dashboard
-      router.push("/admin");
-    } else {
-      setLoginError(
-        "Invalid credentials. Use username: admin, password: admin"
-      );
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdminLoggedIn(false);
-    localStorage.removeItem("adminLoggedIn");
-    // Redirect to homepage
-    router.push("/");
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleLogin();
-    }
+  const handleLogout = async () => {
+    setShowProfileDropdown(false);
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -90,8 +53,8 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">×</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">o</span>
               </div>
               <span className="text-xl font-bold text-gray-900">obase</span>
             </Link>
@@ -152,109 +115,74 @@ export default function Header() {
               </Link>
             </nav>
 
-            {/* Action Buttons */}
-            {/*
+            {/* Right Actions */}
             <div className="flex items-center space-x-3">
-              {isAdminLoggedIn ? (
-                <div className="flex items-center space-x-3">
-                  <Link href="/admin">
-                    <Button variant="outline" size="sm">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Button>
-                  </Link>
-                  <Button variant="outline" size="sm" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </Button>
+              {/* Search Icon */}
+              <button 
+                onClick={() => router.push('/explore')}
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
+              {status === "loading" ? (
+                <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+              ) : session ? (
+                // User is logged in - show profile dropdown
+                <div
+                  className="relative"
+                  onMouseEnter={() => setShowProfileDropdown(true)}
+                  onMouseLeave={() => setShowProfileDropdown(false)}
+                >
+                  <button className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                      <span className="text-sm font-medium">
+                        {session.user?.name?.[0]?.toUpperCase() || session.user?.email?.[0]?.toUpperCase() || "U"}
+                      </span>
+                    </div>
+                  </button>
+
+                  {showProfileDropdown && (
+                    <div className="absolute right-0 top-full w-56 bg-white rounded-md shadow-lg border border-gray-200 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {session.user?.name || "User"}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {session.user?.email}
+                        </p>
+                      </div>
+                      
+                      {session.user?.role === "admin" && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <Dialog
-                  open={isLoginDialogOpen}
-                  onOpenChange={setIsLoginDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Admin
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Admin Login</DialogTitle>
-                      <DialogDescription>
-                        Enter your admin credentials to access the dashboard
-                      </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Username
-                        </label>
-                        <Input
-                          placeholder="Enter username"
-                          value={loginCredentials.username}
-                          onChange={(e) =>
-                            setLoginCredentials({
-                              ...loginCredentials,
-                              username: e.target.value,
-                            })
-                          }
-                          onKeyPress={handleKeyPress}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Password
-                        </label>
-                        <Input
-                          type="password"
-                          placeholder="Enter password"
-                          value={loginCredentials.password}
-                          onChange={(e) =>
-                            setLoginCredentials({
-                              ...loginCredentials,
-                              password: e.target.value,
-                            })
-                          }
-                          onKeyPress={handleKeyPress}
-                        />
-                      </div>
-
-                      {loginError && (
-                        <div className="text-red-600 text-sm">{loginError}</div>
-                      )}
-
-                      <div className="text-xs text-gray-500">
-                        Demo credentials: username: admin, password: admin
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end space-x-2 mt-6">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setIsLoginDialogOpen(false);
-                          setLoginError("");
-                          setLoginCredentials({ username: "", password: "" });
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleLogin}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        Login
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                // User is not logged in - show Login button
+                <Link href="/login">
+                  <Button variant="outline" size="sm" className="rounded-lg border-gray-300">
+                    <User className="w-4 h-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
               )}
             </div>
-                */}
           </div>
         </div>
       </div>

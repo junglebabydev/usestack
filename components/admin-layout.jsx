@@ -1,24 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import AdminSidebar from "@/components/admin-sidebar";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Menu, X } from "lucide-react";
+import { Bell, Search, Menu, X, Loader2, ShieldAlert } from "lucide-react";
 
 export default function AdminLayout({ children }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
-  const handleLogout = () => {
-    try {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("adminLoggedIn");
-      }
-    } catch (_) {}
-    router.push("/");
+  // Debug: Log session data
+  useEffect(() => {
+    console.log("Admin Layout - Session status:", status);
+    console.log("Admin Layout - Session data:", session);
+    console.log("Admin Layout - User role:", session?.user?.role);
+  }, [session, status]);
+
+  // Redirect non-admin users
+  useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session) {
+      router.push("/login?callbackUrl=/admin");
+      return;
+    }
+    
+    if (session.user?.role !== "admin") {
+      console.log("Access denied - User role is:", session.user?.role);
+      router.push("/");
+    }
+  }, [session, status, router]);
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
   };
+
+  // Show loading state while checking auth
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied only if we're sure the user is not an admin
+  // (status is authenticated but role is not admin, or status is unauthenticated)
+  if (status === "unauthenticated" || (status === "authenticated" && session?.user?.role !== "admin")) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <ShieldAlert className="h-12 w-12 mx-auto text-destructive" />
+          <h1 className="mt-4 text-xl font-semibold">Access Denied</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            You don't have permission to access the admin panel.
+          </p>
+          <Button className="mt-4" onClick={() => router.push("/")}>
+            Go to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -83,12 +133,14 @@ export default function AdminLayout({ children }) {
             {/* User Menu */}
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                <span className="text-xs font-medium">A</span>
+                <span className="text-xs font-medium">
+                  {session.user?.name?.[0]?.toUpperCase() || "A"}
+                </span>
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-medium">Admin User</p>
+                <p className="text-sm font-medium">{session.user?.name || "Admin User"}</p>
                 <p className="text-xs text-muted-foreground">
-                  admin@example.com
+                  {session.user?.email || "admin@example.com"}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout}>

@@ -2,6 +2,7 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
+import SessionProvider from "@/components/session-provider"
 
 /**
  * Metadata configuration for the application
@@ -66,7 +67,7 @@ export const metadata = {
  */
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <style>{`
 html {
@@ -76,8 +77,10 @@ html {
 }
         `}</style>
       </head>
-      <body>
-        {children}
+      <body suppressHydrationWarning>
+        <SessionProvider>
+          {children}
+        </SessionProvider>
         <Toaster />
       </body>
     </html>

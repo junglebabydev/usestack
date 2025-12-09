@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-// Company icons removed as company name is no longer displayed
 import Link from "next/link";
 
 export default function FeaturedProducts({
@@ -510,138 +508,92 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
       >
         {(showAll ? filteredProducts : filteredProducts.slice(0, 6)).map(
           (product) => (
-            <Card
+            <Link
               key={product.id}
-              className="hover:shadow-lg transition-shadow overflow-hidden h-[400px] flex flex-col cursor-pointer"
-              onClick={()=>window.open(`${product.website_url}`)} > {/*To Directly Open the Tool Link in A new Tab We are Using window.open */} 
-
-              {/* Product Image - Fixed height */}
-              <div className="h-48 bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800 rounded-t-lg relative overflow-hidden">
-                {product.banner_url ? (
-                  <img
-                    src={product.banner_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover opacity-80"
-                  />
-                ) : (
-                  <div className="w-full h-full" />
-                )}
-
-                {/* Background with gradient overlay or thumbnail */}
-                ++9--
-                {product.tool_thumbnail_url ? (
-                  <div className="absolute inset-0">
+              href={`/tool/${product.slug || product.id}`}
+              className="block h-full"
+            >
+              <Card
+                className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer h-full"
+              >
+                {/* Tool Screenshot/Thumbnail */}
+                <div className="h-48 bg-gray-100 relative overflow-hidden">
+                  {product.tool_thumbnail_url ? (
                     <img
                       src={product.tool_thumbnail_url}
-                      alt={`${product.name} background`}
+                      alt={product.name}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/20"></div>
-                  </div>
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-purple-800/50"></div>
-                )}
-
-                {/* Centered logo/icon - only show when no thumbnail */}
-                {!product.tool_thumbnail_url && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-4xl text-white">🚀</div>
-                  </div>
-                )}
-              </div>
-
-              <CardContent className="p-6 flex flex-col flex-1 min-h-0">
-                {/* Product Name - Fixed height */}
-                <h3 className="font-semibold text-lg mb-1 line-clamp-2  flex items-center">
-                  {product.name}
-                </h3>
-
-                {/* Tagline - Fixed height */}
-                <div className="h-10 mb-1">
-                  {product.tagline && (
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {product.tagline}
-                    </p>
+                  ) : product.banner_url ? (
+                    <img
+                      src={product.banner_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                        <span className="text-white text-2xl font-bold">
+                          {product.name?.charAt(0)?.toUpperCase() || "?"}
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {/* Categories as pills - Fixed height */}
-                <div className="h-8 mb-2 flex flex-wrap gap-2 overflow-hidden">
-                  {(() => {
-                    const names = [
-                      product?.category?.name,
-                      ...(product?.product_categories || [])
-                        .map((pc) => pc?.category?.name)
-                        .filter(Boolean),
-                    ].filter(Boolean);
-                    if (names.length === 0) {
-                      return (
+                <CardContent className="p-5 flex flex-col flex-1">
+                  {/* Product Name */}
+                  <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                    {product.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">
+                    {product.tagline || product.description || "AI-powered tool"}
+                  </p>
+
+                  {/* Category Badge */}
+                  <div className="mb-3">
+                    {(() => {
+                      const categoryName = product?.category?.name || 
+                        (product?.product_categories || [])[0]?.category?.name;
+                      return categoryName ? (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-3 py-1"
+                          className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 border-0 rounded-full font-medium"
                         >
-                          Uncategorized
+                          {categoryName}
                         </Badge>
-                      );
-                    }
-                    return names.slice(0, 2).map((name, idx) => (
-                      <Badge
-                        key={idx}
-                        variant="secondary"
-                        className="text-xs px-3 py-1"
-                      >
-                        {name}
-                      </Badge>
-                    ));
-                  })()}
-                </div>
-
-                {/* Tags - Two lines only */}
-                <div className="flex-1 min-h-0 mb-4">
-                  <div className="h-14 overflow-hidden">
-                    <div className="flex flex-wrap gap-2">
-                      {(() => {
-                        const tagNames = [
-                          ...(product?.tags || []), // legacy array of strings
-                          ...(product?.product_tags || [])
-                            .map((pt) => pt?.tag?.name)
-                            .filter(Boolean),
-                        ]
-                          .filter(Boolean)
-                          .slice(0, 3); // Strictly limit to 4 tags for exactly 2 lines
-
-                        return tagNames.map((tag, index) => (
-                          <Badge
-                            key={`${tag}-${index}`}
-                            variant="secondary"
-                            className="text-xs px-3 py-1 min-w-[80px] justify-center truncate"
-                          >
-                            #{tag}
-                          </Badge>
-                        ));
-                      })()}
-                    </div>
+                      ) : null;
+                    })()}
                   </div>
-                </div>
 
-                {/* Action Button - Fixed at bottom */}
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {(() => {
+                      const tagNames = [
+                        ...(product?.tags || []),
+                        ...(product?.product_tags || [])
+                          .map((pt) => pt?.tag?.name)
+                          .filter(Boolean),
+                      ]
+                        .filter(Boolean)
+                        .slice(0, 3);
 
-                {/* This Button is Currently Disabled So when the user clicks on the Tool image , it will directly redirect to the tool Link */}
-                {/*
-                <div className="mt-auto">
-                  <Link
-                    href={`/tool/${product.slug || product.id}`}
-                    className="block"
-                  >
-                    <Button size="sm" className="w-full">
-                      View tool
-                    </Button>
-                  </Link>
-                </div>
-                */
-                  }
-              </CardContent>
-            </Card>
+                      return tagNames.map((tag, index) => (
+                        <Badge
+                          key={`${tag}-${index}`}
+                          variant="outline"
+                          className="text-xs px-3 py-1.5 bg-gray-50 text-gray-600 border-gray-200 rounded-full"
+                        >
+                          #{tag}
+                        </Badge>
+                      ));
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           )
         )}
       </div>

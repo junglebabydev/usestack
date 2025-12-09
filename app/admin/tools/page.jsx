@@ -12,7 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2, ExternalLink } from "lucide-react";
 
 export default function AdminToolsListPage() {
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -20,15 +19,8 @@ export default function AdminToolsListPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if admin is logged in
-    const adminStatus = localStorage.getItem("adminLoggedIn");
-    if (adminStatus !== "true") {
-      router.push("/");
-      return;
-    }
-    setIsAdminLoggedIn(true);
     fetchTools();
-  }, [router]);
+  }, []);
 
   const fetchTools = async () => {
     try {
@@ -80,21 +72,6 @@ export default function AdminToolsListPage() {
       });
     }
   };
-
-  if (!isAdminLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Access Denied
-          </h1>
-          <p className="text-gray-600">
-            Please log in as admin to access this page.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
       <div className="space-y-6">

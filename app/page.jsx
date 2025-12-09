@@ -1,15 +1,11 @@
 "use client";
 
-// sample data
 import Header from "@/components/header";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import useEmblaCarousel from "embla-carousel-react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { LaserFlowBoxExample } from "./laserHero";
-import LightRays from "./LaserFlow";
 
 import {
   Search,
@@ -25,8 +21,6 @@ import {
   FileText,
   Palette,
   Box,
-  ChevronLeft,
-  ChevronRight,
   BarChart3,
   Zap,
   BookOpen,
@@ -43,7 +37,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-// import { aiStacks } from "@/lib/data" // replaced by live stacks from DB
 import FeaturedProducts from "@/components/featured-products";
 import { supabase } from "@/lib/supabase";
 
@@ -198,41 +191,6 @@ export default function HomePage() {
   const [categoryCounts, setCategoryCounts] = useState({});
   const [stacks, setStacks] = useState([]);
 
-  // Embla carousel setup
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
-    align: "start",
-    containScroll: "trimSnaps",
-    skipSnaps: false,
-    dragFree: false,
-  });
-
-  const topCategories = dbCategories
-    .sort((a, b) => (categoryCounts[b.id] || 0) - (categoryCounts[a.id] || 0))
-    .slice(0, 5);
-
-  // Embla carousel scroll functions
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) {
-      emblaApi.scrollPrev();
-    }
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) {
-      emblaApi.scrollNext();
-    }
-  }, [emblaApi]);
-
-  // Ensure carousel is ready before rendering
-  const [isCarouselReady, setIsCarouselReady] = useState(false);
-
-  useEffect(() => {
-    if (emblaApi) {
-      setIsCarouselReady(true);
-    }
-  }, [emblaApi]);
-
   useEffect(() => {
     const fetchData = async () => {
       const [categoriesRes, productCategoriesRes] = await Promise.all([
@@ -317,394 +275,235 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header />
-      {/* <LaserFlowBoxExample /> */}
 
       {/* Hero Section */}
-      <div style={{ width: "100%", height: "100vh", position: "relative" }}>
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#00ffff"
-          raysSpeed={1.5}
-          lightSpread={0.8}
-          rayLength={1.2}
-          followMouse={true}
-          mouseInfluence={0.1}
-          noiseAmount={0.1}
-          distortion={0.05}
-          className="custom-rays"
-        />
-        <section className="absolute inset-0 flex items-center justify-center top-20">
-          {/* Content */}
-          <div className="relative max-w-7xl mx-auto w-full">
-            <div className="flex flex-col items-center justify-center px-8 text-center">
-              <h1 className="text-[58px] font-bold text-white sm:text-4xl md:text-5xl mb-4 max-w-[600px] mx-auto relative z-10">
-                Discover the Best{" "}
-                <span
-                  className="bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 bg-clip-text text-transparent"
-                  style={{
-                    background:
-                      "linear-gradient(45deg,  #3b82f6,rgb(213, 23, 118),rgb(33, 173, 77) ,  #8b5cf6, #ec4899)",
-                    backgroundSize: "400% 400%",
-                    animation: "gradientShift 6s ease-in-out infinite",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  AI Tools & Agents
-                </span>
-              </h1>
-              <p className="max-w-3xl mx-auto text-base text-gray-300 mb-6 relative z-10">
-                Find, compare, and choose from thousands of AI-powered tools and
-                agents to supercharge your workflow and boost productivity.
-              </p>
+      <section className="pt-24 pb-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center text-center">
+            {/* Top Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full mb-8 border border-gray-200">
+              <Sparkles className="w-4 h-4 text-blue-500" />
+              <span className="text-sm font-medium text-gray-700">
+                Discover AI Tools That Actually Work
+              </span>
+            </div>
 
-              {/* Search Bar */}
-              <div className="max-w-6xl mx-auto mb-6 relative z-10">
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
-                    <div className="moving-border">
-                      <div className="relative">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
-                        <Input
-                          placeholder="Search for AI tools, agents, or categories..."
-                          className="pl-12 lg:w-[410px] pr-12 py-3 text-base border-0 rounded-full h-[58px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-offset-[-2px] bg-transparent text-black placeholder-gray-400"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyPress={handleKeyPress}
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={clearSearch}
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors z-10"
-                            type="button"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    className="rounded-full px-6 py-3 h-[58px] text-[18px] bg-white text-black hover:bg-gray-200"
-                    onClick={handleSearch}
-                  >
-                    Search
-                  </Button>
-                </div>
-              </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 max-w-4xl mx-auto leading-tight">
+              Find the Perfect{" "}
+              <span className="block">AI Tools for</span>
+              <span className="block">Your Workflow</span>
+            </h1>
+            
+            <p className="max-w-2xl mx-auto text-lg text-gray-500 mb-8">
+              Curated directory of AI tools and agents for indie hackers, founders, and
+              builders. Compare features, discover stacks, and ship faster.
+            </p>
 
-              {/* Popular Categories */}
-              <div className="max-w-6xl mx-auto relative z-10">
-                <div className="bg-gradient-to-r ml-2 mb-4 from-indigo-500 via-white-500 to-pink-500 bg-clip-text text-transparent">
-                  Popular categories
-                </div>
-                <div className="flex flex-col gap-3 mb-4">
-                  {/* First row - 3 badges */}
-                  <div className="flex justify-center gap-3">
-                    {topCategories.slice(0, 3).map((category) => (
-                      <Badge
-                        key={category.id}
-                        variant="secondary"
-                        className="cursor-pointer font-[400] bg-[#bdbdbd] hover:bg-white text-black border-gray-600"
-                        onClick={() =>
-                          router.push(
-                            `/explore?category=${category.slug || category.id}`
-                          )
-                        }
-                      >
-                        {category.name}
-                      </Badge>
-                    ))}
-                  </div>
-                  {/* Second row - 2 badges */}
-                  <div className="flex justify-center gap-3">
-                    {topCategories.slice(3, 5).map((category) => (
-                      <Badge
-                        key={category.id}
-                        variant="secondary"
-                        className="cursor-pointer font-[400] bg-[#bdbdbd] hover:bg-white text-black border-gray-600"
-                        onClick={() =>
-                          router.push(
-                            `/explore?category=${category.slug || category.id}`
-                          )
-                        }
-                      >
-                        {category.name}
-                      </Badge>
-                    ))}
-                  </div>
+            {/* Search Bar */}
+            <div className="w-full max-w-2xl mx-auto mb-8">
+              <div className="relative flex items-center">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Input
+                    placeholder="Search 500+ AI tools..."
+                    className="pl-12 pr-12 py-3 text-base border border-gray-200 rounded-full h-14 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={clearSearch}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      type="button"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </div>
-      {/* Browse by Category */}
-      <section className="py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50 relative">
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 bg-black">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(156, 146, 172, 0.15) 3px, rgba(156, 146, 172, 0.15) 4px)`,
-            }}
-          ></div>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-white">
-              Browse by{" "}
-              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                Category
-              </span>
-            </h2>
-            {dbCategories.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={scrollPrev}
-                  className="p-2 hover:bg-gray-50 transition-colors"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={scrollNext}
-                  className="p-2 hover:bg-gray-50 transition-colors"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <div className="relative w-full max-w-full pb-4">
-            {dbCategories.length > 0 ? (
-              <div
-                ref={emblaRef}
-                className="overflow-hidden scrollbar-hide w-full"
-              >
-                <div className="flex py-2">
-                  {dbCategories.map((category, idx) => (
-                    <div
-                      key={`${category.id}-${idx}`}
-                      className="flex-[0_0_200px] min-w-0 pl-4 first:pl-0"
-                    >
-                      <Link
-                        href={`/explore?category=${
-                          category.slug || category.id
-                        }`}
-                        className="block"
-                      >
-                        <div className="group hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-44 w-40 flex flex-col items-center justify-center text-center p-4 rounded-3xl border-0  bg-transparent mr-4 shadow-lg hover:shadow-2xl">
-                          <div
-                            className={`w-16 h-16 ${getCategoryIconBg(
-                              category.name
-                            )} rounded-full flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                          >
-                            <span className="text-gray-700 drop-shadow-sm">
-                              {getCategoryIcon(category.name)}
-                            </span>
-                          </div>
-                          <h3 className="font-normal text-xs text-white line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 transition-colors duration-300 px-1">
-                            {category.name}
-                          </h3>
-                          <p className="text-xs text-gray-500 font-medium">
-                            {categoryCounts[category.id] || 0} tools available
-                          </p>
-                        </div>
-                      </Link>
-                    </div>
-                  ))}
+            {/* Stats Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-green-600" />
                 </div>
+                <span className="text-sm font-medium text-gray-700">500+ Tools</span>
               </div>
-            ) : (
-              <div className="flex gap-4 pb-4 overflow-x-auto scrollbar-hide w-full py-2">
-                {dbCategories.map((category, idx) => (
-                  <div
-                    key={`${category.id}-${idx}`}
-                    className="flex-[0_0_180px] min-w-0"
-                  >
-                    <Link
-                      href={`/explore?category=${category.slug || category.id}`}
-                      className="block"
-                    >
-                      <div className="group hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-44 w-40 flex flex-col items-center justify-center text-center p-4 rounded-3xl border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg hover:shadow-2xl">
-                        <div
-                          className={`w-16 h-16 ${getCategoryIconBg(
-                            category.name
-                          )} rounded-2xl flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                        >
-                          <span className="text-gray-700 drop-shadow-sm">
-                            {getCategoryIcon(category.name)}
-                          </span>
-                        </div>
-                        <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 transition-colors duration-300 px-1">
-                          {category.name}
-                        </h3>
-                        <p className="text-xs text-gray-500 font-medium">
-                          {categoryCounts[category.id] || 0} tools available
-                        </p>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Search className="w-4 h-4 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">50+ Categories</span>
               </div>
-            )}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-green-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">20+ Curated Stacks</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Browse by Category */}
+      <section className="py-20 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Browse by Category
+            </h2>
+            <p className="text-gray-500">
+              Explore AI tools organized by use case
+            </p>
           </div>
 
-          {/* Remove the View more/View less button section */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+            {dbCategories.slice(0, 6).map((category, idx) => (
+              <Link
+                key={`${category.id}-${idx}`}
+                href={`/explore?category=${category.slug || category.id}`}
+                className="block"
+              >
+                <div className="group bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300 cursor-pointer h-full">
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-blue-50`}
+                  >
+                    <span className="text-blue-600">
+                      {getCategoryIcon(category.name)}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-sm text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {categoryCounts[category.id] || 0} tools
+                  </p>
+                  <div className="mt-3 flex items-center text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link href="/categories">
+              <Button variant="outline" className="rounded-full px-6 py-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50">
+                View All Categories
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Recommended AI Stacks */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-purple-50 relative">
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 bg-[#090b39]">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `repeating-linear-gradient(60deg, transparent, transparent 3px, rgba(156, 146, 172, 0.15) 3px, rgba(156, 146, 172, 0.15) 4px)`,
-            }}
-          ></div>
-        </div>
+      {/* Featured Tools & Agents */}
+      <section className="py-16 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                Featured Tools
+              </h2>
+              <p className="text-gray-500">
+                Top AI tools trusted by thousands of builders
+              </p>
+            </div>
+            <Link href="/explore" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors font-medium">
+              View All
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
+          </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-12">
-            {/* <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Recommended AI Stacks
-            </h2> */}
-            <h2 className="text-3xl font-bold text-white">
-              Recommended{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                AI Stacks
-              </span>
-            </h2>
-            <p className="text-lg text-gray-500 mt-1">
-              Curated collections of AI tools and agents for specific use cases
-            </p>
+          <FeaturedProducts showRating={false} gridCols={3} />
+        </div>
+      </section>
+
+      {/* Curated Stacks */}
+      <section className="py-16 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                Curated Stacks
+              </h2>
+              <p className="text-gray-500">
+                Pre-built collections of AI tools for specific workflows
+              </p>
+            </div>
+            <Link href="/explore" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors font-medium">
+              View All
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
           </div>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {stacks.map((stack, idx) => {
-              const colorClass =
+              const gradientClass =
                 idx % 3 === 0
-                  ? {
-                      bg: "bg-white border-blue-200",
-                      chip: "bg-blue-100 text-blue-600",
-                    }
+                  ? "bg-gradient-to-br from-orange-100 via-orange-50 to-yellow-50"
                   : idx % 3 === 1
-                  ? {
-                      bg: "bg-white border-emerald-200",
-                      chip: "bg-emerald-100 text-emerald-600",
-                    }
-                  : {
-                      bg: "bg-white border-purple-200",
-                      chip: "bg-purple-100 text-purple-600",
-                    };
+                  ? "bg-gradient-to-br from-purple-100 via-purple-50 to-pink-50"
+                  : "bg-gradient-to-br from-blue-100 via-blue-50 to-cyan-50";
 
               const products = (stack.product_stacks || [])
                 .map((ps) => ps.product)
-                .filter(Boolean)
-                .slice(0, 4);
+                .filter(Boolean);
 
               return (
-                <Card
-                  key={stack.id}
-                  className={`group hover:shadow-lg transition-all duration-300 overflow-hidden border-2 h-full flex flex-col ${colorClass.bg} rounded-2xl`}
-                >
-                  <CardContent className="p-6 flex flex-col h-full">
-                    {/* Header */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold ${colorClass.chip}`}
-                      >
-                        {stack.name.charAt(0)}
-                      </div>
-                      <h3 className="font-bold text-xl text-gray-900">
+                <Link key={stack.id} href={`/stack/${stack.id}`} className="block group">
+                  <Card className="overflow-hidden border border-gray-200 h-full hover:shadow-lg transition-all duration-300 hover:border-blue-200">
+                    {/* Gradient Header */}
+                    <div className={`h-32 ${gradientClass}`}></div>
+                    
+                    <CardContent className="p-5 bg-white">
+                      <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                         {stack.name}
                       </h3>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                      {stack.description}
-                    </p>
-
-                    {/* Tools list */}
-                    <div className="space-y-3 mb-6 flex-1">
-                      {products.map((product) => {
-                        const categoryName = (product.product_categories || [])
-                          .map((pc) => pc?.category?.name)
-                          .filter(Boolean)[0];
-                        return (
-                          <div
-                            key={product.id}
-                            className="bg-gray-50 rounded-lg p-4 border border-gray-100"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {product.name}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {categoryName || "—"}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant="secondary"
-                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200"
-                                >
-                                  Tool
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* View Complete Stack button */}
-                    <Link href={`/stack/${stack.id}`} className="block mt-auto">
-                      <Button className="w-full bg-black hover:bg-gray-800 text-white">
-                        View Complete Stack
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                      <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+                        {stack.description}
+                      </p>
+                      <div className="flex items-center text-gray-500 text-sm">
+                        <Sparkles className="w-4 h-4 mr-2 text-green-500" />
+                        <span>{products.length} tools included</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* Featured Tools & Agents */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Featured Tools & Agents
-              </h2>
-              <p className="text-gray-600">
-                Top-rated AI tools trusted by thousands of users
-              </p>
-            </div>
-            <Link href="/explore">
-              <Button variant="outline">View All</Button>
+      {/* CTA Section */}
+      <section className="py-20 bg-white border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Built something awesome?
+          </h2>
+          <p className="text-gray-500 text-lg mb-8 max-w-2xl mx-auto">
+            Share your AI tool with thousands of builders and founders actively looking
+            for solutions.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link href="/submit-tool">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">
+                Submit Your Tool
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+            <Link href="/newsletter">
+              <Button variant="outline" className="rounded-lg px-6 py-3 border-gray-300">
+                Subscribe to Newsletter
+              </Button>
             </Link>
           </div>
-
-          <FeaturedProducts showRating={false} gridCols={3} />
         </div>
       </section>
     </div>
