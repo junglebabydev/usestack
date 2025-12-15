@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 import {
   Search,
@@ -191,6 +192,15 @@ export default function HomePage() {
   const [categoryCounts, setCategoryCounts] = useState({});
   const [stacks, setStacks] = useState([]);
 
+  const examplePrompts = [
+    "I need to automate my social media content creation and scheduling",
+    "Help me build a customer support chatbot with AI",
+    "I want to create video content from blog posts automatically",
+    "Find tools to help me write better marketing copy and emails",
+    "I need a complete workflow for AI-powered data analysis",
+    "Build an automated lead generation system with AI",
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       const [categoriesRes, productCategoriesRes] = await Promise.all([
@@ -235,7 +245,7 @@ export default function HomePage() {
           id, name, description,
           product_stacks:product_stack_jnc(
             product:products(
-              id, name, slug,
+              id, name, slug, logo_url, tool_thumbnail_url,
               product_categories:product_category_jnc(
                 category:categories!product_category_jnc_category_id_fkey(name)
               )
@@ -275,76 +285,78 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/50 to-white">
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pt-20 pb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center text-center">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full mb-8 border border-gray-200">
-              <Sparkles className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">
-                Discover AI Tools That Actually Work
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full mb-8 border border-blue-100">
+              <Bot className="w-4 h-4 text-blue-500" />
+              <span className="text-sm font-medium text-blue-600">
+                AI-Powered Tool Discovery
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 max-w-4xl mx-auto leading-tight">
-              Find the Perfect{" "}
-              <span className="block">AI Tools for</span>
-              <span className="block">Your Workflow</span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 max-w-4xl mx-auto leading-tight tracking-tight">
+              Tell us what you need,
+              <span className="block">we'll find the perfect tools</span>
             </h1>
             
-            <p className="max-w-2xl mx-auto text-lg text-gray-500 mb-8">
-              Curated directory of AI tools and agents for indie hackers, founders, and
-              builders. Compare features, discover stacks, and ship faster.
+            <p className="max-w-2xl mx-auto text-lg text-gray-500 mb-10">
+              Describe your workflow, goals, or problem. Our AI will recommend the
+              best tools and show you exactly how to use them together.
             </p>
 
-            {/* Search Bar */}
-            <div className="w-full max-w-2xl mx-auto mb-8">
-              <div className="relative flex items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <Input
-                    placeholder="Search 500+ AI tools..."
-                    className="pl-12 pr-12 py-3 text-base border border-gray-200 rounded-full h-14 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-sm"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={clearSearch}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                      type="button"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  )}
+            {/* Query Input Area */}
+            <div className="w-full max-w-3xl mx-auto mb-4">
+              <div className="relative">
+                <Textarea
+                  placeholder="E.g., I need to create and schedule social media content for my startup..."
+                  className="w-full min-h-[130px] p-4 text-base border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none shadow-sm resize-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <div className="absolute bottom-4 right-4">
+                  <Sparkles className="w-5 h-5 text-gray-300" />
                 </div>
               </div>
             </div>
 
-            {/* Stats Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">500+ Tools</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Search className="w-4 h-4 text-blue-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">50+ Categories</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">20+ Curated Stacks</span>
+            {/* Tip and Button Row */}
+            <div className="w-full max-w-3xl mx-auto flex items-center justify-between mb-10">
+              <p className="text-sm text-gray-500">
+                <span className="font-semibold text-gray-700">Tip:</span> Be specific about your goals and constraints
+              </p>
+              <Button 
+                onClick={handleSearch}
+                className="bg-blue-400 hover:bg-blue-500 text-white rounded-lg px-5 py-2.5 flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                Find My Tools
+              </Button>
+            </div>
+
+            {/* Example Prompts */}
+            <div className="w-full max-w-3xl mx-auto">
+              <p className="text-gray-700 font-medium mb-5 text-center">Try these examples:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {examplePrompts.map((prompt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setSearchQuery(prompt);
+                    }}
+                    className="flex items-start gap-3 p-4 bg-gray-50/80 border border-gray-100 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-left"
+                  >
+                    <Sparkles className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-gray-600">
+                      {prompt}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -448,22 +460,23 @@ export default function HomePage() {
               return (
                 <Link key={stack.id} href={`/stack/${stack.id}`} className="block group">
                   <Card className="overflow-hidden border border-gray-200 h-full hover:shadow-lg transition-all duration-300 hover:border-blue-200 rounded-2xl">
-                    {/* Header with Tool Logos */}
+                    {/* Header with Tool Logos - Overlapping Style */}
                     <div className="h-36 bg-white flex items-center justify-center px-6 border-b border-gray-100">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center">
                         {displayProducts.map((product, pIdx) => (
                           <div 
                             key={product.id || pIdx}
-                            className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center"
+                            className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center border-2 border-white shadow-md bg-white"
+                            style={{ marginLeft: pIdx === 0 ? 0 : -18, zIndex: pIdx + 1 }}
                           >
                             {product.logo_url || product.tool_thumbnail_url ? (
                               <img
                                 src={product.logo_url || product.tool_thumbnail_url}
                                 alt={product.name}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-xl">
+                              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                                 <span className="text-gray-700 text-sm font-bold">
                                   {product.name?.charAt(0)?.toUpperCase() || "?"}
                                 </span>
@@ -472,7 +485,10 @@ export default function HomePage() {
                           </div>
                         ))}
                         {extraCount > 0 && (
-                          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                          <div 
+                            className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white shadow-md"
+                            style={{ marginLeft: -18, zIndex: displayProducts.length + 1 }}
+                          >
                             <span className="text-gray-600 text-sm font-semibold">
                               +{extraCount}
                             </span>
