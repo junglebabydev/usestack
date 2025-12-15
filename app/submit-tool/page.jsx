@@ -698,17 +698,6 @@ useEffect(() => {
                     placeholder="e.g., John, Jane"
                   />
                 </div>
-
-                <div className="flex items-center gap-3 mt-6">
-                  <Checkbox
-                    id="is_verified"
-                    checked={formData.is_verified}
-                    onCheckedChange={(checked) =>
-                      handleInputChange("is_verified", checked)
-                    }
-                  />
-                  <Label htmlFor="is_verified">Verified Tool</Label>
-                </div>
               </div>
 
             </CardContent>
@@ -862,17 +851,6 @@ useEffect(() => {
                         placeholder="Optional details or link"
                       />
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id="company_verified"
-                      checked={formData.company_verified}
-                      onCheckedChange={(checked) =>
-                        handleInputChange("company_verified", checked)
-                      }
-                    />
-                    <Label htmlFor="company_verified">Verified Company</Label>
                   </div>
                 </div>
               )}
