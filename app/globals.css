@@ -52,6 +52,53 @@
   }
 }
 
+/* Workflow loader animations */
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -4px);
+  }
+}
+
+.animate-dash {
+  animation: dash 1s linear infinite;
+}
+
+.animate-dash-delayed {
+  animation: dash 1s linear infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 1.5s ease-in-out infinite;
+}
+
 .moving-border {
   position: relative;
   border: 2px solid #e5e7eb;

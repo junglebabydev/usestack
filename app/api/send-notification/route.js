@@ -55,7 +55,7 @@ export async function POST(request) {
           
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
             <p style="color: #64748b; font-size: 14px; margin: 0;">
-              This is an automated notification from the Obase AI Tool submission system.
+              This is an automated notification from the UseStack.ai Tool submission system.
             </p>
           </div>
         </div>

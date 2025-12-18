@@ -191,7 +191,6 @@ export default function HomePage() {
   const [dbCategories, setDbCategories] = useState([]);
   const [categoryCounts, setCategoryCounts] = useState({});
   const [stacks, setStacks] = useState([]);
-
   const examplePrompts = [
     "I need to automate my social media content creation and scheduling",
     "Help me build a customer support chatbot with AI",
@@ -268,7 +267,7 @@ export default function HomePage() {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      router.push(`/explore?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/AiSearch?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       router.push("/explore");
     }
