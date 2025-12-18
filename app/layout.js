@@ -9,38 +9,52 @@ import SessionProvider from "@/components/session-provider"
  * @type {import('next').Metadata}
  */
 export const metadata = {
-  title: "obase - Discover the Best AI Tools & Agents",
+  title: "UseStack.ai - Discover the Best AI Tools & Agents",
   description:
     "Find, compare, and choose from thousands of AI-powered tools and agents to supercharge your workflow and boost productivity. Discover curated AI stacks for every use case.",
   keywords:
     "AI tools, AI agents, artificial intelligence, productivity tools, AI marketplace, machine learning tools, automation, AI software",
-  authors: [{ name: "obase" }],
-  creator: "obase",
-  publisher: "obase",
+  authors: [{ name: "UseStack.ai" }],
+  creator: "UseStack.ai",
+  publisher: "UseStack.ai",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://obase.dev"),
+  metadataBase: new URL("https://usestack.ai"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "obase - Discover the Best AI Tools & Agents",
+    title: "UseStack.ai - Discover the Best AI Tools & Agents",
     description:
       "Find, compare, and choose from thousands of AI-powered tools and agents to supercharge your workflow and boost productivity.",
-    url: "https://obase.dev",
-    siteName: "obase",
+    url: "https://usestack.ai",
+    siteName: "UseStack.ai",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "UseStack.ai",
+      },
+    ],
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "obase - Discover the Best AI Tools & Agents",
+    title: "UseStack.ai - Discover the Best AI Tools & Agents",
     description:
       "Find, compare, and choose from thousands of AI-powered tools and agents to supercharge your workflow and boost productivity.",
-    creator: "@obase",
+    creator: "@usestackai",
+    images: ["/logo.png"],
   },
   robots: {
     index: true,

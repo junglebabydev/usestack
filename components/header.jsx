@@ -32,11 +32,8 @@ export default function Header() {
         <div className="grid grid-cols-3 items-center h-16">
           {/* Logo - Left */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">o</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">obase</span>
+            <Link href="/" className="flex items-center">
+              <img src="/logo.png" alt="UseStack.ai" className="h-8 object-contain" />
             </Link>
           </div>
 

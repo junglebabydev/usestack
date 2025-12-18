@@ -476,7 +476,7 @@ useEffect(() => {
     }
     setScrapping(true);
     try{
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/scrape`, {
+    const response = await fetch(`/api/scrape`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: toolUrl}),

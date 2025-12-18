@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Header from "@/components/header";
 import { 
   CheckCircle2, 
@@ -30,6 +31,7 @@ const loadingSteps = [
 const WorkflowPage = () => {
   const params = useParams();
   const router = useRouter();
+  const { data: session, status } = useSession();
   const workflowId = params.id;
   
   const [isLoading, setIsLoading] = useState(true);
@@ -185,13 +187,24 @@ const WorkflowPage = () => {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    className="flex items-center gap-2 border-gray-200"
-                  >
-                    <Bookmark className="w-4 h-4" />
-                    Save
-                  </Button>
+                  {session ? (
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-2 border-gray-200"
+                    >
+                      <Bookmark className="w-4 h-4" />
+                      Save
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-2 border-gray-200"
+                      onClick={() => router.push('/login')}
+                    >
+                      <Bookmark className="w-4 h-4" />
+                      Login to save
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     className="flex items-center gap-2 border-gray-200"

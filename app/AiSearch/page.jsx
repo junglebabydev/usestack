@@ -50,7 +50,14 @@ const AiSearchPage = () => {
     const performSearch = async () => {
       try {
         // Call the API route to generate workflow and save to DB
-        const decodedQuery = decodeURIComponent(query);
+        // Safely decode the query, handling malformed URI sequences (e.g., lone % symbols)
+        let decodedQuery;
+        try {
+          decodedQuery = decodeURIComponent(query);
+        } catch (e) {
+          // If decoding fails, use the original query as-is
+          decodedQuery = query;
+        }
         const res = await fetch("/api/ai-search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
