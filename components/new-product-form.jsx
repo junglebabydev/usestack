@@ -515,6 +515,21 @@ useEffect(() => {
       company_funding_info: tool.company_funding_info ?? "",
       company_id: tool.company_id ?? null,
     });
+     if (Array.isArray(tool.categories)) {
+        for (const category of tool.categories) {
+          handleCategoryToggle(parseInt(category.id));
+        }
+      }
+      if (Array.isArray(tool.subCategories)) {
+        for (const subCategory of tool.subCategories) {
+          handleSubcategoryToggle(parseInt(subCategory.id));
+        }
+      }
+      if (Array.isArray(tool.tags)) {
+        for (const tag of tool.tags) {
+          handleTagToggle(parseInt(tag.id));
+        }
+      }
     toast({
       title: "Success!",
       description: "Tool Data Fetched Successfully.",
