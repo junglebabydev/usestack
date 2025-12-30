@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
+import Clarity from "@/components/Clarity"
 import {
   Search,
   ArrowRight,
@@ -286,7 +286,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/50 to-white">
       <Header />
-
+      <Clarity></Clarity>
       {/* Hero Section */}
       <section className="pt-20 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

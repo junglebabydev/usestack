@@ -70,10 +70,10 @@ export default function Header() {
             >
               <Search className="w-5 h-5" />
             </button>
-
+          {/*
             {status === "loading" ? (
               <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-            ) : session ? (
+             ) : session ? (
               // User is logged in - show profile image or initial with dropdown
               <div
                 className="relative"
@@ -135,6 +135,7 @@ export default function Header() {
                 </Button>
               </Link>
             )}
+              */}
           </div>
         </div>
       </div>

@@ -83,6 +83,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+      
         <style>{`
 html {
   font-family: ${GeistSans.style.fontFamily};

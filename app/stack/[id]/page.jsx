@@ -30,7 +30,23 @@ const relatedStacks = [
 
 export default async function StackDetailPage({ params }) {
   const { id } = await params;
-
+  function timeAgo(date) {
+    const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
+    const intervals = [
+      { label: "year", seconds: 31536000 },
+      { label: "month", seconds: 2592000 },
+      { label: "day", seconds: 86400 },
+      { label: "hour", seconds: 3600 },
+      { label: "minute", seconds: 60 },
+    ];
+    for (const interval of intervals) {
+      const count = Math.floor(seconds / interval.seconds);
+      if (count >= 1) {
+        return `${count} ${interval.label}${count > 1 ? "s" : ""} ago`;
+      }
+    }
+    return "just now";
+  }
 
   // Fetch stack from DB (by id or slug)
   const { data: stackData, error } = await supabase
@@ -42,6 +58,7 @@ export default async function StackDetailPage({ params }) {
         description,
          created_by:users(name),
           created_at,
+          updated_at,
       product_stacks:product_stack_jnc(
         product:products(
           id, name, slug, tagline, website_url, tool_thumbnail_url, tags,
@@ -98,7 +115,6 @@ export default async function StackDetailPage({ params }) {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex text-sm text-gray-500 mb-6">
@@ -133,12 +149,6 @@ export default async function StackDetailPage({ params }) {
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 mb-3 flex items-baseline gap-3">
                 {stackData.name}
-
-                {stackData.created_by && (
-                  <span className="text-base font-medium text-gray-500">
-                    by {stackData.created_by.name || "Anonymous"}
-                  </span>
-                )}
               </h1>
 
               <p className="text-lg text-gray-700 mb-6">
@@ -161,14 +171,22 @@ export default async function StackDetailPage({ params }) {
                   </span>
                 </div>
 
-                {stackData.created_at && (
-                  <div className="flex items-center text-sm text-gray-400">
-                    Created at {new Date(stackData.created_at).toLocaleDateString()}
+                {stackData.updated_at && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Clock className="w-4 h-4" />
+                    <span>Updated {timeAgo(stackData.updated_at)}</span>
                   </div>
                 )}
 
               </div>
-
+             {stackData.created_by && (
+        <div className="text-sm text-gray-500 mb-5">
+          by{" "}
+          <span className="font-medium text-gray-700">
+            {stackData.created_by.name || "AI Stack Team"}
+          </span>
+        </div>
+      )}
               <div className="flex gap-3">
                 <StackActions stackId={stackData.id} />
               </div>
@@ -254,8 +272,9 @@ export default async function StackDetailPage({ params }) {
           </div>
 
           {/* Right Sidebar */}
+          {/*
           <div className="lg:col-span-1 space-y-6">
-            {/* Related Stacks */}
+     
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -284,7 +303,6 @@ export default async function StackDetailPage({ params }) {
               </CardContent>
             </Card>
 
-            {/* Stack Stats */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -312,6 +330,7 @@ export default async function StackDetailPage({ params }) {
               </CardContent>
             </Card>
           </div>
+            */}
         </div>
       </div>
     </div>

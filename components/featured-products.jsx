@@ -512,8 +512,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
         {displayProducts.map((product) => (
           <Link
             key={product.id}
-            href={`/tool/${product.slug || product.id}`}
+            href={product.website_url}
             className="block"
+            target="_blank"
           >
             <Card
               className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer aspect-square"
