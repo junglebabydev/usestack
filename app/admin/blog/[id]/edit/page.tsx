@@ -15,8 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { blogService, calculateReadingTime } from "@/lib/blog-service"
-import type { Author, BlogPost } from "@/lib/types/blog"
-import { supabase } from "@/lib/supabase"
+import type { Author } from "@/lib/types/blog"
 
 export default function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -41,26 +40,22 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     async function fetchData() {
       try {
-        const [authorsData, postData] = await Promise.all([
-          blogService.getAllAuthors(),
-          supabase.from("blog_posts").select("*").eq("id", id).single(),
-        ])
+        const [authorsData, postData] = await Promise.all([blogService.getAllAuthors(), blogService.getPostById(id)])
 
         setAuthors(authorsData)
 
-        if (postData.data) {
-          const post = postData.data as BlogPost
+        if (postData) {
           setFormData({
-            title: post.title,
-            slug: post.slug,
-            summary: post.summary,
-            content: post.content,
-            thumbnail_url: post.thumbnail_url || "",
-            author_id: post.author_id || "",
-            category: post.category || "",
-            tags: post.tags?.join(", ") || "",
-            meta_description: post.meta_description || "",
-            is_published: post.is_published,
+            title: postData.title,
+            slug: postData.slug,
+            summary: postData.summary,
+            content: postData.content,
+            thumbnail_url: postData.thumbnail_url || "",
+            author_id: postData.author_id || "",
+            category: postData.category || "",
+            tags: postData.tags?.join(", ") || "",
+            meta_description: postData.meta_description || "",
+            is_published: postData.is_published,
           })
         }
       } catch (error) {
