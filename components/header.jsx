@@ -59,6 +59,12 @@ export default function Header() {
             >
               Submit Tool
             </Link>
+            <Link
+              href="/blogs"
+              className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+            >
+              Blogs
+            </Link>
           </nav>
 
           {/* Right Actions */}

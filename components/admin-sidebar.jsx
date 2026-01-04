@@ -23,6 +23,7 @@ import {
   Search,
   Menu,
   X,
+  BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -60,6 +61,11 @@ const navigationItems = [
         title: "AI Tools",
         href: "/admin/tools",
         icon: Database,
+      },
+      {
+        title: "Blogs",
+        href: "/admin/blogs",
+        icon:BookOpen
       },
       {
         title: "Categories",
