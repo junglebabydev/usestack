@@ -21,7 +21,7 @@ export default function Page() {
       const { data, error } = await supabase
         .from("stacks")
         .select(
-          `id, name, description, product_stacks:product_stack_jnc(product:products(id, name, logo_url, tool_thumbnail_url))`
+          `id, name, description,slug, product_stacks:product_stack_jnc(product:products(id, name, logo_url, tool_thumbnail_url))`
         )
         .order("created_at", { ascending: false });
       if (!error && data) {
@@ -93,7 +93,7 @@ export default function Page() {
                 const displayProducts = products.slice(0, 4);
                 const extraCount = products.length - 4;
                 return (
-                  <Link key={stack.id} href={`/stack/${stack.id}`} className="block group">
+                  <Link key={stack.id} href={`/stack/${stack.slug}`} className="block group">
                     <Card className="overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 rounded-2xl bg-white flex flex-col cursor-pointer">
                       {/* Header with Tool Logos - Overlapping Style */}
                       <div className="h-28 bg-white flex items-center justify-center px-6 border-b border-gray-100">
