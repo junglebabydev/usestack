@@ -9,11 +9,38 @@ import {
   BarChart3,
   Search,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-const kpiCards = [
+
+
+export default function KPICards() {
+  const [values, setValues] = useState({toolCount: 0, stackCount: 0,userCount: 0, categoryCount: 0});
+
+  useEffect(()=>{
+     getAnalyticsData();
+  }, []);
+  async function getAnalyticsData(){
+    const { count: toolsCount } = await supabase
+  .from("products")
+  .select("*", { count: "exact", head: true });
+  const { count: stacksCount } = await supabase
+  .from("stacks")
+  .select("*", { count: "exact", head: true });
+   const { count: usersCount } = await supabase
+  .from("users")
+  .select("*", { count: "exact", head: true });
+   const { count: categoriesCount } = await supabase
+  .from("categories")
+  .select("*", { count: "exact", head: true });
+  setValues({toolCount: toolsCount, stackCount: stacksCount, userCount: usersCount, categoryCount: categoriesCount});
+  return ;
+  }
+
+  const kpiCards = [
   {
     title: "Total AI Tools",
-    value: "1,250",
+    value: values.toolCount,
     change: "+12.5%",
     trend: "up",
     description: "New tools added this month",
@@ -22,7 +49,7 @@ const kpiCards = [
   },
   {
     title: "Active Users",
-    value: "2,456",
+    value:values.userCount,
     change: "+8.2%",
     trend: "up",
     description: "Growing user base",
@@ -31,7 +58,7 @@ const kpiCards = [
   },
   {
     title: "AI Stacks",
-    value: "45",
+    value: values.stackCount,
     change: "+15.0%",
     trend: "up",
     description: "Curated collections created",
@@ -40,7 +67,7 @@ const kpiCards = [
   },
   {
     title: "Tool Categories",
-    value: "28",
+    value: values.categoryCount,
     change: "+3.6%",
     trend: "up",
     description: "Categories expanded",
@@ -49,7 +76,6 @@ const kpiCards = [
   },
 ];
 
-export default function KPICards() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {kpiCards.map((card) => (

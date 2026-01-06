@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye, Save } from "lucide-react";
+import { ArrowLeft, Eye, Save, Upload, X, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 
@@ -10,8 +10,10 @@ const CATEGORIES = ["Tool", "Stack", "News"];
 
 export default function page() {
   const router = useRouter();
+  const fileInputRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
@@ -62,6 +64,81 @@ export default function page() {
       .trim()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
+  }
+
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, GIF, or WebP image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split(".").pop();
+      const fileName = `BlogImages${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      setForm((prev) => ({ ...prev, thumbnail: urlData.publicUrl }));
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully!",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Upload failed",
+        description: error.message || "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }
+
+  function handleRemoveImage() {
+    setForm((prev) => ({ ...prev, thumbnail: "" }));
   }
 
   async function handleSubmit() {
@@ -295,17 +372,57 @@ export default function page() {
       )}
     </div>
 
-    {/* Thumbnail */}
-    <div className="space-y-1">
+    {/* Thumbnail Upload */}
+    <div className="space-y-2">
       <label className="text-xs font-medium text-gray-600">
-        Thumbnail URL
+        Thumbnail Image
       </label>
+      
+      {form.thumbnail ? (
+        <div className="relative">
+          <img
+            src={form.thumbnail}
+            alt="Thumbnail preview"
+            className="w-full h-32 object-cover rounded-md border"
+          />
+          <button
+            type="button"
+            onClick={handleRemoveImage}
+            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      ) : (
+        <div
+          onClick={() => !uploading && fileInputRef.current?.click()}
+          className={`w-full h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer transition-colors ${
+            uploading
+              ? "border-gray-300 bg-gray-50 cursor-not-allowed"
+              : "border-gray-300 hover:border-blue-500 hover:bg-blue-50"
+          }`}
+        >
+          {uploading ? (
+            <>
+              <Loader2 size={24} className="text-blue-500 animate-spin" />
+              <span className="text-xs text-gray-500 mt-2">Uploading...</span>
+            </>
+          ) : (
+            <>
+              <Upload size={24} className="text-gray-400" />
+              <span className="text-xs text-gray-500 mt-2">Click to upload image</span>
+              <span className="text-xs text-gray-400">JPEG, PNG, GIF, WebP (max 5MB)</span>
+            </>
+          )}
+        </div>
+      )}
+      
       <input
-        name="thumbnail"
-        placeholder="https://example.com/image.jpg"
-        value={form.thumbnail}
-        onChange={handleChange}
-        className="w-full rounded-md border px-3 py-2 text-sm"
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={handleImageUpload}
+        className="hidden"
       />
     </div>
 
