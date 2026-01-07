@@ -27,6 +27,7 @@ import {
   MessageSquare,
   ThumbsUp,
   User,
+  Shuffle
 } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -113,7 +114,7 @@ export default function ToolDetailPage() {
     { title: "Platform Security Update", date: "1 week ago" },
     { title: "Community Milestone: 50K Users", date: "2 weeks ago" },
   ]);
-  const [trendingProducts, setTrendingProducts] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     if (params?.slug) {
@@ -125,38 +126,85 @@ export default function ToolDetailPage() {
     fetchAINews();
   }, []);
 
-  // Fetch trending products by specific IDs
+  // Fetch related products based on matching categories (products can have multiple categories)
   useEffect(() => {
-    const fetchTrending = async () => {
-      const trendingIds = [13, 14, 15];
+    const fetchRelatedProducts = async () => {
+      if (!product?.id) return;
+      
       try {
-        const { data, error } = await supabase
+        // First, get all category IDs for the current product
+        const { data: currentProductCategories, error: catError } = await supabase
+          .from("product_category_jnc")
+          .select("category_id")
+          .eq("product_id", product.id);
+
+        if (catError || !currentProductCategories?.length) {
+          console.error("Error fetching current product categories:", catError);
+          return;
+        }
+
+        const currentCategoryIds = currentProductCategories.map(pc => pc.category_id);
+
+        // Find all products that share at least one category with the current product
+        const { data: relatedProductIds, error: relatedError } = await supabase
+          .from("product_category_jnc")
+          .select("product_id, category_id")
+          .in("category_id", currentCategoryIds)
+          .neq("product_id", product.id);
+
+        if (relatedError) {
+          console.error("Error fetching related product IDs:", relatedError);
+          return;
+        }
+
+        // Count how many categories each product shares and sort by match count
+        const productMatchCount = {};
+        relatedProductIds.forEach(item => {
+          productMatchCount[item.product_id] = (productMatchCount[item.product_id] || 0) + 1;
+        });
+
+        // Sort by match count (descending) and take top 3
+        const sortedProductIds = Object.entries(productMatchCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([id]) => parseInt(id));
+
+        if (sortedProductIds.length === 0) {
+          setRelatedProducts([]);
+          return;
+        }
+
+        // Fetch the product details for the top related products
+        const { data: products, error: productsError } = await supabase
           .from("products")
           .select(
             `
             id, name, slug, tagline,
             product_categories:product_category_jnc(
-              category:categories!product_category_jnc_category_id_fkey(name)
+              category:categories!product_category_jnc_category_id_fkey(id, name)
             )
           `
           )
-          .in("id", trendingIds);
+          .in("id", sortedProductIds);
 
-        if (!error && data) {
-          const ordered = [...data].sort(
-            (a, b) => trendingIds.indexOf(a.id) - trendingIds.indexOf(b.id)
-          );
-          setTrendingProducts(ordered);
-        } else if (error) {
-          console.error("Error fetching trending products:", error);
+        if (productsError) {
+          console.error("Error fetching related products:", productsError);
+          return;
         }
+
+        // Sort the results by match count to maintain the ranking
+        const sortedProducts = products.sort((a, b) => {
+          return productMatchCount[b.id] - productMatchCount[a.id];
+        });
+
+        setRelatedProducts(sortedProducts);
       } catch (err) {
-        console.error("Error fetching trending products:", err);
+        console.error("Error fetching related products:", err);
       }
     };
 
-    fetchTrending();
-  }, []);
+    fetchRelatedProducts();
+  }, [product]);
 
   const fetchAINews = async () => {
     try {
@@ -413,13 +461,15 @@ export default function ToolDetailPage() {
                     >
                       Social Feeds
                     </TabsTrigger>
+                       */}
+                    { /*
                     <TabsTrigger
                       value="team"
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"
                     >
                       Team
                     </TabsTrigger>
-                    */}
+                     */}
                   </TabsList>
 
                   <TabsContent value="about" className="p-6">
@@ -615,35 +665,40 @@ export default function ToolDetailPage() {
             <Card className="border-gray-200 shadow-lg bg-white">
               <CardHeader className="pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
-                  Trending Tools
+                  <Shuffle className="w-5 h-5 text-blue-600" />
+                  Related Tools
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-5">
-                {trendingProducts.map((tp, index) => {
-                  const categoryName = (tp.product_categories || [])
-                    .map((pc) => pc?.category?.name)
-                    .filter(Boolean)[0];
-                  const subline = tp.tagline || categoryName || "—";
-                  const href = `/tool/${tp.slug || tp.id}`;
-                  return (
-                    <Link
-                      href={href}
-                      key={tp.id}
-                      className="flex items-start gap-4 p-4 rounded-lg hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-200 hover:shadow-sm"
-                    >
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-gray-900 truncate leading-tight mb-1">
-                          {tp.name}
-                        </p>
-                        <p className="text-xs text-gray-600 mb-2">{subline}</p>
-                      </div>
-                    </Link>
-                  );
-                })}
+                {relatedProducts.length > 0 ? (
+                  relatedProducts.map((tp, index) => {
+                    const categoryNames = (tp.product_categories || [])
+                      .map((pc) => pc?.category?.name)
+                      .filter(Boolean);
+                    const categoryName = categoryNames.join(", ");
+                    const subline = tp.tagline || categoryName || "—";
+                    const href = `/tool/${tp.slug || tp.id}`;
+                    return (
+                      <Link
+                        href={href}
+                        key={tp.id}
+                        className="flex items-start gap-4 p-4 rounded-lg hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-200 hover:shadow-sm"
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-gray-900 truncate leading-tight mb-1">
+                            {tp.name}
+                          </p>
+                          <p className="text-xs text-gray-600 mb-2">{subline}</p>
+                        </div>
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">No related tools found</p>
+                )}
               </CardContent>
             </Card>
 
