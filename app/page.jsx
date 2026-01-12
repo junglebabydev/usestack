@@ -241,7 +241,7 @@ export default function HomePage() {
         .from("stacks")
         .select(
           `
-          id, name, description,
+          id, name, description,slug,
           product_stacks:product_stack_jnc(
             product:products(
               id, name, slug, logo_url, tool_thumbnail_url,
@@ -457,7 +457,7 @@ export default function HomePage() {
               const extraCount = products.length - 4;
 
               return (
-                <Link key={stack.id} href={`/stack/${stack.id}`} className="block group">
+                <Link key={stack.id} href={`/stack/${stack.slug}`} className="block group">
                   <Card className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer aspect-square">
                     {/* Header with Tool Logos - Overlapping Style */}
                     <div className="h-36 bg-white flex items-center justify-center px-6 border-b border-gray-100">

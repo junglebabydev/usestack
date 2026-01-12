@@ -11,6 +11,7 @@ export default function Page() {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("categories");
   const [value, setValue] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,34 +38,62 @@ export default function Page() {
     .replace(/\s+/g, "-")           
     .replace(/-+/g, "-");      
 }
+
+  function handleTypeChange(newType) {
+    setType(newType);
+    setSelectedCategoryId("");
+  }
+
   async function handleSubmit() {
     if (!value.trim()) return alert("Enter a value");
 
+    // Validate category selection for subcategories
+    if (type === "sub_categories" && !selectedCategoryId) {
+      toast({
+        title: "Error",
+        description: "Please select a parent category for the subcategory",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
-     const slug = generateSlug(value.trim());
-    const { error } = await supabase
-      .from(type)
-      .insert({name: value.trim(), slug: slug });
+    let insertData = { name: value.trim()};
+
+    // Add category_id and category_name for subcategories
+    if (type === "sub_categories") {
+      const selectedCategory = categories.find(
+        (cat) => cat.id === parseInt(selectedCategoryId)
+      );
+      insertData = {
+        ...insertData,
+        category_id: parseInt(selectedCategoryId),
+        category_name: selectedCategory?.name || "",
+      };
+    }
+
+    const { error } = await supabase.from(type).insert(insertData);
 
     setLoading(false);
 
     if (error) {
       toast({
         title: "Error",
-        description: error,
+        description: error.message || error,
         variant: "destructive",
       });
       return;
     }
 
     setValue("");
+    setSelectedCategoryId("");
     setOpen(false);
     fetchAll();
-     toast({
-        title: "Success",
-        description: `${type} added Successfully`,
-        variant: "success",
-      });
+    toast({
+      title: "Success",
+      description: `${type} added Successfully`,
+      variant: "success",
+    });
   }
 
   return (
@@ -90,13 +119,29 @@ export default function Page() {
 
             <select
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={(e) => handleTypeChange(e.target.value)}
               className="w-full border p-2 mb-3"
             >
               <option value="categories">Category</option>
-             {/* <option value="sub_categories">Subcategory</option> */}
+              <option value="sub_categories">Subcategory</option>
               <option value="tags">Tag</option>
             </select>
+
+            {type === "sub_categories" && (
+              <select
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                className="w-full border p-2 mb-3"
+                required
+              >
+                <option value="">Select Parent Category *</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
 
             <input
               value={value}
@@ -138,6 +183,9 @@ function Section({ title, data }) {
             className="px-3 py-1 border rounded text-sm"
           >
             {item.name}
+            {item.category_name && (
+              <span className="text-gray-500 ml-1">({item.category_name})</span>
+            )}
           </span>
         ))}
       </div>

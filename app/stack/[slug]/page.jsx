@@ -29,7 +29,7 @@ const relatedStacks = [
 ];
 
 export default async function StackDetailPage({ params }) {
-  const { id } = await params;
+  const { slug } = await params;
   function timeAgo(date) {
     const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
     const intervals = [
@@ -72,7 +72,7 @@ export default async function StackDetailPage({ params }) {
       )
     `
     )
-    .eq("id", id)
+    .eq("slug", slug)
     .single();
 
   if (error || !stackData) {

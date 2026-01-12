@@ -289,7 +289,7 @@ export default function SignupPage() {
                 <span className="bg-white px-2 text-gray-500">Or continue with</span>
               </div>
             </div>
-
+            {/*
             <Button
               type="button"
               variant="outline"
@@ -317,7 +317,7 @@ export default function SignupPage() {
               </svg>
               Continue with Google
             </Button>
-
+             */}
             <p className="mt-6 text-center text-sm text-gray-600">
               Already have an account?{" "}
               <Link href="/login" className="text-primary font-medium hover:underline">

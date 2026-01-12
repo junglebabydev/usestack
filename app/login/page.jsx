@@ -193,7 +193,7 @@ export default function LoginPage() {
                 <span className="bg-white px-2 text-gray-500">Or continue with</span>
               </div>
             </div>
-
+             {/*
             <Button
               type="button"
               variant="outline"
@@ -221,7 +221,7 @@ export default function LoginPage() {
               </svg>
               Continue with Google
             </Button>
-
+             */}
             <p className="mt-6 text-center text-sm text-gray-600">
               Don't have an account?{" "}
               <Link href="/signup" className="text-primary font-medium hover:underline">

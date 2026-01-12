@@ -71,6 +71,7 @@ export default function SocialFeeds({ productId, toolName }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
+  
           <button
             onClick={() => setActiveTab("twitter")}
             className={`px-4 py-2 rounded-full transition-colors ${
