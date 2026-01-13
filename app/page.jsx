@@ -39,6 +39,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import FeaturedProducts from "@/components/featured-products";
+import SponsoredTools from "@/components/sponsored-tools";
+import SponsorBanner from "@/components/sponsor-banner";
 import { supabase } from "@/lib/supabase";
 
 export default function HomePage() {
@@ -314,28 +316,28 @@ export default function HomePage() {
               <div className="relative">
                 <Textarea
                   placeholder="E.g., I need to create and schedule social media content for my startup..."
-                  className="w-full min-h-[130px] p-4 text-base border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none shadow-sm resize-none"
+                  className="w-full min-h-[130px] p-4 pr-36 text-base border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none shadow-sm resize-none"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
                 />
-                <div className="absolute bottom-4 right-4">
-                  <Sparkles className="w-5 h-5 text-gray-300" />
+                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                  <Button 
+                    onClick={handleSearch}
+                    className="bg-blue-400 hover:bg-blue-500 text-white rounded-lg px-4 py-2 flex items-center gap-2 shadow-sm"
+                  >
+                    <Search className="w-4 h-4" />
+                    Find My Tools
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* Tip and Button Row */}
-            <div className="w-full max-w-3xl mx-auto flex items-center justify-between mb-10">
+            {/* Tip Row */}
+            <div className="w-full max-w-3xl mx-auto mb-10">
               <p className="text-sm text-gray-500">
                 <span className="font-semibold text-gray-700">Tip:</span> Be specific about your goals and constraints
               </p>
-              <Button 
-                onClick={handleSearch}
-                className="bg-blue-400 hover:bg-blue-500 text-white rounded-lg px-5 py-2.5 flex items-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                Find My Tools
-              </Button>
             </div>
 
             {/* Example Prompts */}
@@ -361,6 +363,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Sponsor Company Banner */}
+      <SponsorBanner />
+
       {/* Browse by Category */}
       <section className="py-20 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -514,6 +520,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Sponsored Tools Section */}
+      <SponsoredTools gridCols={4} />
 
       {/* CTA Section */}
       <section className="py-20 bg-white border-t border-gray-100">
