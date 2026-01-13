@@ -27,7 +27,8 @@ import {
   MessageSquare,
   ThumbsUp,
   User,
-  Shuffle
+  Shuffle,
+  Zap
 } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -115,6 +116,7 @@ export default function ToolDetailPage() {
     { title: "Community Milestone: 50K Users", date: "2 weeks ago" },
   ]);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [sponsoredProducts, setSponsoredProducts] = useState([]);
 
   useEffect(() => {
     if (params?.slug) {
@@ -125,6 +127,64 @@ export default function ToolDetailPage() {
   useEffect(() => {
     fetchAINews();
   }, []);
+
+  // Fetch sponsored products for sidebar from ads table
+  useEffect(() => {
+    const fetchSponsoredProducts = async () => {
+      try {
+        // Fetch ads from the ads table where visiblity is true
+        const { data: adsData, error: adsError } = await supabase
+          .from("ads")
+          .select("tool_id")
+          .eq("visibility", true)
+          .order("created_at", { ascending: false })
+          .limit(2);
+
+        if (adsError || !adsData || adsData.length === 0) {
+          setSponsoredProducts([]);
+          return;
+        }
+
+        // Extract tool IDs from ads
+        const toolIds = adsData.map((ad) => ad.tool_id).filter(Boolean);
+
+        if (toolIds.length === 0) {
+          setSponsoredProducts([]);
+          return;
+        }
+
+        // Fetch the product details for these tool IDs
+        const { data: productsData, error: productsError } = await supabase
+          .from("products")
+          .select(
+            `
+            id, name, slug, tagline, logo_url, tool_thumbnail_url,
+            product_categories:product_category_jnc(
+              category:categories!product_category_jnc_category_id_fkey(id, name)
+            )
+          `
+          )
+          .in("id", toolIds);
+
+        if (productsError || !productsData) {
+          setSponsoredProducts([]);
+          return;
+        }
+
+        // Sort products to match the order from ads table and filter out current product
+        const sortedProducts = toolIds
+          .map((id) => productsData.find((p) => p.id === id))
+          .filter((p) => p && p.slug !== params?.slug);
+
+        setSponsoredProducts(sortedProducts.slice(0, 2));
+      } catch (err) {
+        console.error("Error fetching sponsored products:", err);
+        setSponsoredProducts([]);
+      }
+    };
+
+    fetchSponsoredProducts();
+  }, [params?.slug]);
 
   // Fetch related products based on matching categories (products can have multiple categories)
   useEffect(() => {
@@ -662,6 +722,63 @@ export default function ToolDetailPage() {
 
           {/* Right Sidebar */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Sponsored Tools Section */}
+            {sponsoredProducts.length > 0 && (
+              <Card className="border-blue-200 shadow-lg bg-gradient-to-br from-blue-50/50 to-indigo-50/50">
+                <CardHeader className="pb-4 border-b border-blue-100 bg-gradient-to-r from-blue-100 to-indigo-100">
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                    <div className="flex items-center justify-center w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg">
+                      <Zap className="w-4 h-4 text-white fill-white" />
+                    </div>
+                    Sponsored Tools
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-5">
+                  {sponsoredProducts.map((sp, index) => {
+                    const categoryNames = (sp.product_categories || [])
+                      .map((pc) => pc?.category?.name)
+                      .filter(Boolean);
+                    const categoryName = categoryNames.join(", ");
+                    const subline = sp.tagline || categoryName || "AI-powered tool";
+                    const href = `/tool/${sp.slug || sp.id}`;
+                    return (
+                      <Link
+                        href={href}
+                        key={sp.id}
+                        className="flex items-start gap-3 p-4 rounded-lg hover:bg-blue-100/50 transition-colors border border-transparent hover:border-blue-200 hover:shadow-sm group"
+                      >
+                        {/* Tool Logo/Avatar */}
+                        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-blue-200 shadow-sm">
+                          {sp.logo_url || sp.tool_thumbnail_url ? (
+                            <img
+                              src={sp.logo_url || sp.tool_thumbnail_url}
+                              alt={sp.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                              <span className="text-white text-sm font-bold">
+                                {sp.name?.charAt(0)?.toUpperCase() || "?"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <p className="font-semibold text-sm text-gray-900 truncate leading-tight group-hover:text-blue-700 transition-colors">
+                              {sp.name}
+                            </p>
+                            <Star className="w-3.5 h-3.5 text-blue-400 fill-blue-400 flex-shrink-0" />
+                          </div>
+                          <p className="text-xs text-gray-600 line-clamp-2">{subline}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
+
             <Card className="border-gray-200 shadow-lg bg-white">
               <CardHeader className="pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">

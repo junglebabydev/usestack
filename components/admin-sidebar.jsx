@@ -23,7 +23,8 @@ import {
   Search,
   Menu,
   X,
-  BookOpen
+  BookOpen,
+  Megaphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -76,6 +77,11 @@ const navigationItems = [
         title: "Submissions",
         href: "/admin/submissions",
         icon: RefreshCw,
+      },
+      {
+        title: "Sponsered",
+        href: "/admin/sponsered",
+        icon: Megaphone,
       },
     ],
   },
