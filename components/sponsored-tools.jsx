@@ -157,7 +157,7 @@ export default function SponsoredTools({ gridCols = 4 }) {
           className="block group"
         >
           <Card
-            className="bg-white border-2 border-blue-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer aspect-square relative"
+            className="bg-white border-2 border-blue-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer h-full relative"
           >
             {/* Sponsored Badge - Premium feel */}
             <div className="absolute top-3 right-3 z-10">
@@ -168,7 +168,7 @@ export default function SponsoredTools({ gridCols = 4 }) {
             </div>
 
             {/* Tool Screenshot/Thumbnail - Full width with gradient overlay */}
-            <div className="h-40 bg-gray-100 relative overflow-hidden">
+            <div className="h-28 flex-shrink-0 bg-gray-100 relative overflow-hidden">
               {product.tool_thumbnail_url ? (
                 <img
                   src={product.tool_thumbnail_url}
@@ -183,20 +183,20 @@ export default function SponsoredTools({ gridCols = 4 }) {
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg">
-                    <span className="text-white text-2xl font-bold">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg">
+                    <span className="text-white text-xl font-bold">
                       {product.name?.charAt(0)?.toUpperCase() || "?"}
                     </span>
                   </div>
                 </div>
               )}
               {/* Subtle gradient overlay at bottom */}
-              <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white/50 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/50 to-transparent"></div>
             </div>
 
-            <CardContent className="p-4 flex flex-col flex-1">
+            <CardContent className="p-3 flex flex-col flex-1">
               {/* Product Name with star icon */}
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-semibold text-sm text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
                   {product.name}
                 </h3>
@@ -204,12 +204,12 @@ export default function SponsoredTools({ gridCols = 4 }) {
               </div>
 
               {/* Description */}
-              <p className="text-gray-500 text-xs mb-3 line-clamp-2 flex-1">
+              <p className="text-gray-500 text-xs mb-2 line-clamp-2">
                 {product.tagline || product.description || "AI-powered tool"}
               </p>
 
               {/* Category Badge */}
-              <div className="mb-2">
+              <div className="mb-1.5 mt-auto">
                 {(() => {
                   const categoryName = product?.category?.name || 
                     (product?.product_categories || [])[0]?.category?.name;

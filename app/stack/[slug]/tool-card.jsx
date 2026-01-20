@@ -15,10 +15,10 @@ export default function ToolCard({ tool }) {
   ].filter(Boolean).slice(0, 2);
 
   return (
-    <Link href={`/tool/${tool.slug || tool.id}`} className="block">
-      <Card className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer aspect-square">
+    <Link href={`/tool/${tool.slug || tool.id}`} className="block h-full">
+      <Card className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer h-full">
         {/* Tool Screenshot/Thumbnail */}
-        <div className="h-40 bg-gray-100 relative overflow-hidden">
+        <div className="h-28 flex-shrink-0 bg-gray-100 relative overflow-hidden">
           {tool.tool_thumbnail_url ? (
             <img
               src={tool.tool_thumbnail_url}
@@ -27,8 +27,8 @@ export default function ToolCard({ tool }) {
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                <span className="text-white text-xl font-bold">
                   {tool.name?.charAt(0)?.toUpperCase() || "?"}
                 </span>
               </div>
@@ -36,20 +36,20 @@ export default function ToolCard({ tool }) {
           )}
         </div>
 
-        <CardContent className="p-4 flex flex-col flex-1">
+        <CardContent className="p-3 flex flex-col flex-1">
           {/* Product Name */}
-          <h3 className="font-semibold text-sm text-gray-900 mb-2 line-clamp-1">
+          <h3 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">
             {tool.name}
           </h3>
 
           {/* Description */}
-          <p className="text-gray-500 text-xs mb-3 line-clamp-2 flex-1">
+          <p className="text-gray-500 text-xs mb-2 line-clamp-2">
             {tool.tagline || "AI-powered tool"}
           </p>
 
           {/* Category Badge */}
           {categoryName && (
-            <div className="mb-2">
+            <div className="mb-1.5 mt-auto">
               <Badge
                 variant="secondary"
                 className="text-xs px-2 py-1 bg-gray-100 text-gray-700 border-0 rounded-full font-medium"

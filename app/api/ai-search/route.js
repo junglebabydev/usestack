@@ -1,103 +1,63 @@
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
+import { GoogleGenAI } from "@google/genai";
 
-async function getQueryData(query) {
- const prompt = `
-You are an intent classification engine for an AI tools discovery platform.
+const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
+const groundingTool = {
+  googleSearch: {},
+};
+const config = {
+  tools: [groundingTool],
+};
 
-User Query:
-"${query}"
+async function getAllTools(){
+   const { data, error } = await supabase
+    .from("products")
+    .select("*");
 
-Your task:
-Identify the MOST relevant intent from the lists below.
+  if (error) throw error;
 
-STRICT RULES:
-- Use ONLY values from the provided lists
-- DO NOT invent new values
-- Select ONLY highly relevant items
-- Max: 3 categories, 5 subcategories, 8 tags
-- If unsure, select fewer items (precision > recall)
-- Output MUST be valid JSON only
-- No explanations, no markdown, no extra text
-
-Allowed Categories:
-["Analytics & Data Tools","Audio & Voice Tools","Automation & Agents","Business & Marketing Tools","Chat & Conversational Assistants","Developer & Coding Tools","Education & Tutoring Tools","Image & Art Generators","Miscellaneous Tools & Utilities","Productivity & Workflow Tools","Text & Writing Tools","Video & Animation Tools"]
-
-Allowed Subcategories:
-["Advertising assistants","Agentic task automation","AI pair-programming","Analytics dashboards","Article generation","Avatars","Chatbots","Code completion","Code review","Copywriting","Customer support bots","Dashboards","Data forecasting","Design assets","Digital coworkers","Educational content generators","FAQs","File summarizers","Illustrations","Image editing","Lead scoring","Learning assistants","Meeting assistants","Music synthesis","Niche AI utilities","Project planning","Prompt engineering","Proofreading","Proposal assistants","SEO tools","Speech enhancement","Style transfer","Task automation","Translation","Trend prediction","Tutoring","Video creation","Video summarization","Voiceover generation"]
-
-Allowed Tags:
-["ads","assistant","automation","blog","chat","content","copywriting","creative","design","docs","editing","generative","grammar","image","marketing","meetings","planning","prompts","publishing","search","SEO","social","summarize","tasks","tools","transcription","tts","video","voiceover","write","vector","retrieval"]
-
-Return EXACTLY this JSON structure:
-{
-  "categories": [],
-  "subcategories": [],
-  "tags": []
+  return data;
 }
-`;
+async function getRelevantTools(query, toolList){
+    const prompt = `
+You are an expert AI workflow architect and tool recommendation engine.
 
-  const response = await axios.post(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      model: "anthropic/claude-3-haiku",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      },
-    }
-  );
+You are given:
+1) A user problem statement
+2) A catalog of tools (~400). Each tool contains:
+   - id (INTEGER database id)
+   - tool_id (string slug)
+   - name
+   - description
+   - tagline
 
-  const raw = cleanJsonString(response.data.choices[0].message.content);
-  return JSON.parse(raw);
-}
+GOAL:
+Generate a step-by-step workflow that solves the user's problem using the most simplest tools realted to users query. Just Focus on what user's Query is about rather than thinking inDepth.
+Each workflow step MUST include at least 1 tool that performs real work in that step.
 
-async function generateWorkflow(query, tools) {
-  const toolList = tools
-    .map(
-      (t, i) =>
-        `[ID:${t.id}] ${t.name} – ${t.tagline || t.description?.substring(0, 100)}`
-    )
-    .join("\n");
-
- const prompt = `
-You are an AI workflow planner.
-
-User Goal:
-"${query}"
-
-Available Tools:
-${toolList}
-
-Your task:
-Design a clear, practical workflow that helps the user achieve the goal using ONLY the tools listed above.
-
-WORKFLOW REQUIREMENTS:
-- Create 3 to 5 logical steps
-- Steps must be actionable and ordered
-- Each step must clearly state WHAT is done and WHY
-- Each step must recommend 1–3 tools
-
-TOOL USAGE RULES:
-- Use ONLY tool IDs from the provided list
-- For EACH tool, write a ONE-LINE explanation of what the tool does IN THAT STEP
-- Do NOT repeat generic taglines
-- Be specific to the step’s purpose
-
-PRO TIPS:
-- 2–3 concise, practical tips per step
-- Tips should improve results, speed, or accuracy
+STRICT THINKING PROCESS (internal only, DO NOT reveal):
+1) Identify the user's primary goal and constraints.
+2) Break the solution into logical steps from start to finish.
+3) For each step, pick the best tool(s) from the provided list.
+4) Prefer a coherent stack: tools should integrate logically across steps.
+5) Avoid redundant tools. Choose the smallest set that fully solves the problem.
+6) Use the Goolge Search tool provided for your reference.
+IMPORTANT RULES:
+- ONLY choose tools from the provided list.
+- Use ONLY the tool database integer id in steps.tools[].id
+- Do NOT invent tools or ids.
+- Every step MUST include tools.length >= 1
+- Every tool included MUST have a clear reason tied to the step.
 
 OUTPUT RULES:
-- Return VALID JSON only
-- No markdown
-- No extra text
-- Follow the exact schema below
+- Return ONLY valid JSON (no markdown, no explanation text, no comments).
+- Follow the exact schema below (do not add or remove keys).
+- The workflow must have 3-5 steps depending on complexity.
+- Focus mainly on what the user has asked not everything that is related to the query.
+- stepDescription MUST explain WHY the tool is chosen + WHAT it does in that step.
 
-Required JSON format:
+REQUIRED JSON SCHEMA:
 {
   "workflow": {
     "title": "Short, clear workflow title",
@@ -109,26 +69,28 @@ Required JSON format:
         "description": "What happens in this step and why it matters",
         "tools": [
           {
-            "id": "tool-id-from-list",
-            "stepDescription": "One line explaining exactly what this tool does in this step"
+            "id": 0,
+            "stepDescription": "Explain exactly what this tool does in this step AND why it is the best match."
           }
         ],
-        "proTips": [
-          "Actionable tip 1",
-          "Actionable tip 2"
-        ]
       }
     ]
   }
 }
-`;
 
-  const response = await axios.post(
+NOW GENERATE THE WORKFLOW FOR THIS USER QUERY:
+${query}
+
+TOOLS CATALOG (use only these tools, ids must match exactly):
+${toolList}
+`;
+  {/*
+   const response = await axios.post(
     "https://openrouter.ai/api/v1/chat/completions",
     {
-      model: "anthropic/claude-3-haiku",
+      model: "google/gemini-2.5-flash",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
+      temperature: 0,
     },
     {
       headers: {
@@ -136,42 +98,31 @@ Required JSON format:
       },
     }
   );
-
+  */}
+  const response = await ai.models.generateContent({
+  model: "gemini-2.5-flash",
+  contents: prompt,
+  config,
+});
   return JSON.parse(
-    cleanJsonString(response.data.choices[0].message.content)
+    cleanJsonString(response.text)
   );
 }
-
-async function getFilteredTools(intent) {
-  let query = supabase.from("products").select(`
-    id,
-    name,
-    tagline,
-    description,
-    slug,
-    logo_url,
-    tool_thumbnail_url,
-    website_url,
-    tags,
-    is_verified,
-    product_categories:product_category_jnc(
-      category:categories!product_category_jnc_category_id_fkey(id, name, slug)
-    ),
-    product_tags:product_tags_jnc(
-      tag:tags!product_tags_jnc_tag_id_fkey(id, name, slug)
-    )
-  `);
-
-  // Note: You may need to adjust filtering based on your actual DB schema
-  const { data, error } = await query.limit(50);
-
-  if (error) throw error;
-  return data;
+async function getAiSearchResponse(query, allTools) {
+  try {
+    const data = await getRelevantTools(query, allTools);
+    return data;
+  } catch (err) {
+    console.error("AI Search Error:", err);
+    throw new Error("AI search failed");
+  }
 }
 
+
+// Helper Function to remove any extra backtics(```) begore json
 function cleanJsonString(str) {
   if (!str) return str;
-  str = str.replace(/```[\s\S]*?{/m, "{");
+  str = str.replace(/```[\s\S]*?{/m, "{"); 
   str = str.replace(/```/g, "");
   return str.trim();
 }
@@ -179,38 +130,29 @@ function cleanJsonString(str) {
 export async function POST(request) {
   try {
     const {decodedQuery:query} = await request.json();
-        
     if (!query) {
       return Response.json({ error: "Query is required" }, { status: 400 });
     }
-
-    // Step 1: Intent extraction
-    const intent = await getQueryData(query);
-    
-    // Step 2: DB filtering - get full tool details
-    const tools = await getFilteredTools(intent);
-    
-    if (!tools?.length) {
-      return Response.json({ error: "No matching tools found", workflowId: null }, { status: 200 });
-    }
-
-    // Step 3: Generate workflow with steps and tool recommendations
-    const workflowData = await generateWorkflow(query, tools);
-    
+    const tools = await getAllTools();
+     const toolList = tools
+    .map(
+      (t, i) =>
+        `${i + 1}. id: ${t.id}, name: ${t.name} ,tagline: ${t.tagline} , description: ${t.description}, `
+    )
+    .join("\n");
+    const workflowData = await getAiSearchResponse(query, toolList);
+  
     // Check if workflow was generated
     if (!workflowData?.workflow) {
       return Response.json({ error: "Failed to generate workflow", workflowId: null }, { status: 200 });
     }
-    
     // Step 4: Enrich workflow steps with full tool data
     const workflow = workflowData.workflow;
     const allToolIds = new Set();
-    
     // Ensure steps exist
     if (!workflow.steps || !Array.isArray(workflow.steps)) {
       workflow.steps = [];
     }
-    
     workflow.steps = workflow.steps.map((step) => {
       // Handle new format with tools array containing {id, stepDescription}
       const stepToolsData = step.tools || [];
