@@ -76,7 +76,7 @@ const WorkflowPage = () => {
           .select("*")
           .eq("id", workflowId)
           .single();
-
+          console.log("workflow is ", data);
         if (fetchError) {
           throw fetchError;
         }
@@ -247,7 +247,15 @@ const WorkflowPage = () => {
 
               {/* Workflow Steps */}
               <div className="space-y-6">
-                {workflow.steps.map((step) => (
+                {workflow.steps.map((step) => {
+                  // Get tools for this step - check step.tools first, fallback to allTools distributed across steps
+                  const stepTools = step.tools?.length > 0 
+                    ? step.tools 
+                    : allTools.length > 0 
+                      ? allTools.filter((_, idx) => Math.floor(idx / Math.ceil(allTools.length / workflow.steps.length)) === step.stepNumber - 1)
+                      : [];
+                  
+                  return (
                   <Card key={step.stepNumber} className="border border-gray-200 overflow-hidden">
                     <CardContent className="p-6">
                       {/* Step Header */}
@@ -266,13 +274,13 @@ const WorkflowPage = () => {
                       </div>
 
                       {/* Recommended Tools */}
-                      {step.tools?.length > 0 && (
+                      {stepTools.length > 0 && (
                         <div className="mb-6">
                           <h4 className="text-sm font-semibold text-gray-900 mb-4">
                             Recommended Tools:
                           </h4>
                           <div className="space-y-3">
-                            {step.tools.map((tool) => (
+                            {stepTools.map((tool) => (
                               <div 
                                 key={tool.id}
                                 className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl"
@@ -365,7 +373,8 @@ const WorkflowPage = () => {
                       )}
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Complete Tool Stack */}

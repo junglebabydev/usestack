@@ -95,8 +95,8 @@ html {
       <body suppressHydrationWarning>
         <SessionProvider>
           {children}
+          <Toaster />
         </SessionProvider>
-        <Toaster />
       </body>
     </html>
   )

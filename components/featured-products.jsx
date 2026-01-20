@@ -516,10 +516,10 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
             className="block"
           >
             <Card
-              className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer aspect-square"
+              className="bg-white border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col rounded-2xl cursor-pointer h-full"
             >
               {/* Tool Screenshot/Thumbnail - Full width */}
-              <div className="h-40 bg-gray-100 relative overflow-hidden">
+              <div className="h-28 flex-shrink-0 bg-gray-100 relative overflow-hidden">
                 {product.tool_thumbnail_url ? (
                   <img
                     src={product.tool_thumbnail_url}
@@ -534,8 +534,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                      <span className="text-white text-2xl font-bold">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                      <span className="text-white text-xl font-bold">
                         {product.name?.charAt(0)?.toUpperCase() || "?"}
                       </span>
                     </div>
@@ -543,19 +543,19 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key_here`}
                 )}
               </div>
 
-              <CardContent className="p-4 flex flex-col flex-1">
+              <CardContent className="p-3 flex flex-col flex-1">
                 {/* Product Name */}
-                <h3 className="font-semibold text-sm text-gray-900 mb-2 line-clamp-1">
+                <h3 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">
                   {product.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-gray-500 text-xs mb-3 line-clamp-2 flex-1">
+                <p className="text-gray-500 text-xs mb-2 line-clamp-2">
                   {product.tagline || product.description || "AI-powered tool"}
                 </p>
 
                 {/* Category Badge */}
-                <div className="mb-2">
+                <div className="mb-1.5 mt-auto">
                   {(() => {
                     const categoryName = product?.category?.name || 
                       (product?.product_categories || [])[0]?.category?.name;
