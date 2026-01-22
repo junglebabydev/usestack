@@ -15,6 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { 
   Eye, 
   EyeOff, 
@@ -26,7 +37,8 @@ import {
   Plus,
   Search,
   X,
-  Check
+  Check,
+  Trash2
 } from "lucide-react";
 
 export default function AdminAdsPage() {
@@ -58,6 +70,7 @@ export default function AdminAdsPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     fetchToolAds();
@@ -391,6 +404,82 @@ export default function AdminAdsPage() {
     }
   };
 
+  // Delete Tool Ad
+  const handleDeleteToolAd = async (ad) => {
+    try {
+      setDeletingId(`tool-${ad.id}`);
+      
+      const { error } = await supabase
+        .from("ads")
+        .delete()
+        .eq("id", ad.id);
+
+      if (error) throw error;
+
+      setToolAds(prev => prev.filter(a => a.id !== ad.id));
+
+      toast({
+        title: "Deleted",
+        description: `Tool ad for "${ad.product?.name || 'Unknown'}" has been deleted`,
+      });
+    } catch (error) {
+      console.error("Error deleting tool ad:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete tool ad",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Delete Company Ad
+  const handleDeleteCompanyAd = async (ad) => {
+    try {
+      setDeletingId(`company-${ad.id}`);
+      
+      // Delete the image from storage if it exists
+      if (ad.thumbnail_url) {
+        try {
+          // Extract filename from URL
+          const urlParts = ad.thumbnail_url.split('/');
+          const fileName = urlParts[urlParts.length - 1];
+          
+          await supabase.storage
+            .from('label_thumbnails')
+            .remove([fileName]);
+        } catch (storageError) {
+          console.error("Error deleting image from storage:", storageError);
+          // Continue with deletion even if image removal fails
+        }
+      }
+
+      const { error } = await supabase
+        .from("company_ads")
+        .delete()
+        .eq("id", ad.id);
+
+      if (error) throw error;
+
+      setCompanyAds(prev => prev.filter(a => a.id !== ad.id));
+
+      toast({
+        title: "Deleted",
+        description: `Company ad for "${ad.company_name || 'Unknown'}" has been deleted`,
+      });
+    } catch (error) {
+      console.error("Error deleting company ad:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete company ad",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   // Filter tools based on search
   const filteredTools = allTools.filter(tool =>
     tool.name.toLowerCase().includes(toolSearch.toLowerCase()) ||
@@ -647,6 +736,35 @@ export default function AdminAdsPage() {
                             </>
                           )}
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              disabled={deletingId === `tool-${ad.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Tool Ad</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete the sponsored tool ad for "{ad.product?.name || 'Unknown'}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteToolAd(ad)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         {ad.product?.website_url && (
                           <Button
                             variant="ghost"
@@ -863,6 +981,35 @@ export default function AdminAdsPage() {
                             </>
                           )}
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              disabled={deletingId === `company-${ad.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Company Ad</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete the sponsored label for "{ad.company_name || 'Unknown'}"? This will also remove the banner image. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteCompanyAd(ad)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         {ad.company_url && (
                           <Button
                             variant="ghost"

@@ -106,6 +106,16 @@ export default function AdminStacksPage() {
     }
   };
 
+  // Generate slug from name
+  const generateSlug = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  };
+
   const handleCreateStack = async () => {
     if (!formData.name.trim() || !formData.description.trim()) {
       alert("Please fill in all required fields");
@@ -113,11 +123,15 @@ export default function AdminStacksPage() {
     }
 
     try {
+      // Generate slug from name
+      const slug = generateSlug(formData.name);
+
       // Create the stack
       const { data: stackData, error: stackError } = await supabase
         .from("stacks")
         .insert({
           name: formData.name.trim(),
+          slug: slug,
           description: formData.description.trim(),
           is_public: false, // Default to private
           created_by: 1, // Default admin user ID
@@ -174,11 +188,15 @@ export default function AdminStacksPage() {
       console.log("Updating stack:", editingStack.id);
       console.log("Selected products:", selectedProducts);
 
+      // Generate slug from name
+      const slug = generateSlug(formData.name);
+
       // Update the stack
       const { error: stackError } = await supabase
         .from("stacks")
         .update({
           name: formData.name.trim(),
+          slug: slug,
           description: formData.description.trim(),
         })
         .eq("id", editingStack.id);
