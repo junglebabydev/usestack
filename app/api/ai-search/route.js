@@ -2,7 +2,6 @@ import axios from "axios";
 import { supabase } from "@/lib/supabase";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 const groundingTool = {
   googleSearch: {},
 };
@@ -99,6 +98,7 @@ ${toolList}
     }
   );
   */}
+  const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
   const response = await ai.models.generateContent({
   model: "gemini-2.5-flash",
   contents: prompt,
