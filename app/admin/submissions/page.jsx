@@ -27,7 +27,6 @@ function Page() {
           .eq("status", "pending");
 
         if (error) throw error;
-        console.log("data is ", data);
         setTools(data);
       } catch (err) {
         toast({
@@ -130,7 +129,6 @@ const handleToolApproval = async (tool) => {
       variant: "success",
     });
   } catch (err) {
-    console.error("Error approving tool:", err);
     toast({
       title: "Error",
       description: err.message || "Error approving the tool.",
@@ -161,7 +159,6 @@ const handleToolRejection = async (tool) => {
       description: "Tool has been rejected.",
     });
   } catch (err) {
-    console.error("Error rejecting tool:", err);
     toast({
       title: "Error",
       description: err.message || "Error rejecting the tool.",

@@ -138,10 +138,8 @@ export default function page() {
         .order("name");
 
       if (subCatsError) {
-        console.error("Error fetching sub-categories:", subCatsError);
         setSubCategories([]);
       } else {
-        console.log("Sub-categories loaded successfully:", subCatsData);
         setSubCategories(subCatsData || []);
       }
 
@@ -154,7 +152,6 @@ export default function page() {
       if (companiesError) throw companiesError;
       setCompanies(companiesData || []);
     } catch (error) {
-      console.error("Error fetching initial data:", error);
       toast({
         title: "Error",
         description: "Failed to load form data. Please refresh the page.",
@@ -458,7 +455,6 @@ export default function page() {
       // Show success message
       setSubmittedTool(true);
     } catch (error) {
-      console.error("Error creating product:", error);
       toast({
         title: "Error",
         description:
@@ -483,13 +479,21 @@ export default function page() {
     }
     setScrapping(true);
     try {
-      const response = await fetch(`/api/scrape`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: toolUrl }),
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      let data;
+      try {
+        const response = await fetch(`/api/scrape`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: toolUrl }),
+          signal: controller.signal,
+        });
 
-      const data = await response.json();
+        data = await response.json();
+      } finally {
+        clearTimeout(timeoutId);
+      }
       if (!data || data.error) {
         toast({
           title: "Error",

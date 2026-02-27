@@ -13,13 +13,6 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  // Debug: Log session data
-  useEffect(() => {
-    console.log("Admin Layout - Session status:", status);
-    console.log("Admin Layout - Session data:", session);
-    console.log("Admin Layout - User role:", session?.user?.role);
-  }, [session, status]);
-
   // Redirect non-admin users
   useEffect(() => {
     if (status === "loading") return;
@@ -30,7 +23,6 @@ export default function AdminLayout({ children }) {
     }
     
     if (session.user?.role !== "admin") {
-      console.log("Access denied - User role is:", session.user?.role);
       router.push("/");
     }
   }, [session, status, router]);

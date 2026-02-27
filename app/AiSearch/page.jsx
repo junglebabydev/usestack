@@ -58,18 +58,25 @@ const AiSearchPage = () => {
           // If decoding fails, use the original query as-is
           decodedQuery = query;
         }
-        const res = await fetch("/api/ai-search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ decodedQuery }),
-        });
-        
-        if (!res.ok) {
-          throw new Error("AI search request failed");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        let response;
+        try {
+          const res = await fetch("/api/ai-search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ decodedQuery }),
+            signal: controller.signal,
+          });
+
+          if (!res.ok) {
+            throw new Error("AI search request failed");
+          }
+
+          response = await res.json();
+        } finally {
+          clearTimeout(timeoutId);
         }
-        
-        const response = await res.json();
-        console.log("API Response:", response);
         
         if (response.error) {
           throw new Error(response.error);
@@ -89,7 +96,6 @@ const AiSearchPage = () => {
         }, 500);
         
       } catch (err) {
-        console.error("AI Search error:", err);
         setError("Something went wrong. Please try again.");
         hasSearched.current = false; // Allow retry on error
       }

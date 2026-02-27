@@ -53,6 +53,8 @@ export default function AdminStacksPage() {
   const [editingStack, setEditingStack] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -86,7 +88,7 @@ export default function AdminStacksPage() {
       if (error) throw error;
       setStacks(data || []);
     } catch (error) {
-      console.error("Error fetching stacks:", error);
+      setError("Failed to fetch stacks.");
     } finally {
       setLoading(false);
     }
@@ -102,7 +104,7 @@ export default function AdminStacksPage() {
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      setError("Failed to fetch products.");
     }
   };
 
@@ -118,7 +120,7 @@ export default function AdminStacksPage() {
 
   const handleCreateStack = async () => {
     if (!formData.name.trim() || !formData.description.trim()) {
-      alert("Please fill in all required fields");
+      setError("Please fill in all required fields");
       return;
     }
 
@@ -154,15 +156,12 @@ export default function AdminStacksPage() {
           };
         });
 
-        console.log("Creating product associations:", productStackInserts);
-
         // Insert product associations
         const { error: junctionError } = await supabase
           .from("product_stack_jnc")
           .insert(productStackInserts);
 
         if (junctionError) {
-          console.error("Junction insert error:", junctionError);
           throw junctionError;
         }
       }
@@ -173,20 +172,17 @@ export default function AdminStacksPage() {
       setIsCreateDialogOpen(false);
       fetchStacks();
     } catch (error) {
-      console.error("Error creating stack:", error);
-      alert("Failed to create stack. Please try again.");
+      setError("Failed to create stack. Please try again.");
     }
   };
 
   const handleEditStack = async () => {
     if (!formData.name.trim() || !formData.description.trim()) {
-      alert("Please fill in all required fields");
+      setError("Please fill in all required fields");
       return;
     }
 
     try {
-      console.log("Updating stack:", editingStack.id);
-      console.log("Selected products:", selectedProducts);
 
       // Generate slug from name
       const slug = generateSlug(formData.name);
@@ -202,7 +198,6 @@ export default function AdminStacksPage() {
         .eq("id", editingStack.id);
 
       if (stackError) {
-        console.error("Stack update error:", stackError);
         throw stackError;
       }
 
@@ -213,7 +208,6 @@ export default function AdminStacksPage() {
         .eq("stack_id", editingStack.id);
 
       if (deleteError) {
-        console.error("Delete junction error:", deleteError);
         throw deleteError;
       }
 
@@ -230,15 +224,12 @@ export default function AdminStacksPage() {
           };
         });
 
-        console.log("Inserting product associations:", productStackInserts);
-
         // Insert product associations
         const { error: insertError } = await supabase
           .from("product_stack_jnc")
           .insert(productStackInserts);
 
         if (insertError) {
-          console.error("Insert junction error:", insertError);
           throw insertError;
         }
       }
@@ -250,8 +241,7 @@ export default function AdminStacksPage() {
       setIsEditDialogOpen(false);
       fetchStacks();
     } catch (error) {
-      console.error("Error updating stack:", error);
-      alert(`Failed to update stack: ${error.message || "Unknown error"}`);
+      setError(`Failed to update stack: ${error.message || "Unknown error"}`);
     }
   };
 
@@ -275,8 +265,7 @@ export default function AdminStacksPage() {
 
       fetchStacks();
     } catch (error) {
-      console.error("Error deleting stack:", error);
-      alert("Failed to delete stack. Please try again.");
+      setError("Failed to delete stack. Please try again.");
     }
   };
 
@@ -299,7 +288,6 @@ export default function AdminStacksPage() {
       .map((ps) => ps.product?.id)
       .filter(Boolean)
       .map((id) => parseInt(id)); // Ensure all IDs are integers
-    console.log("Stack product IDs from DB:", stackProductIds);
     setSelectedProducts(stackProductIds);
 
     setIsEditDialogOpen(true);
@@ -307,12 +295,6 @@ export default function AdminStacksPage() {
 
   const toggleProductSelection = (productId) => {
     const productIdInt = parseInt(productId);
-    console.log(
-      "Toggling product:",
-      productIdInt,
-      "Current selected:",
-      selectedProducts
-    );
     setSelectedProducts((prev) =>
       prev.includes(productIdInt)
         ? prev.filter((id) => id !== productIdInt)
@@ -357,6 +339,20 @@ export default function AdminStacksPage() {
     <div className="min-h-screen bg-gray-50">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="ml-4 font-medium hover:text-red-900">&times;</button>
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <span>{success}</span>
+            <button onClick={() => setSuccess(null)} className="ml-4 font-medium hover:text-green-900">&times;</button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

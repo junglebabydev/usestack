@@ -2,6 +2,12 @@
   "functions": {
     "app/api/scrape/route.js": {
       "maxDuration": 60
+    },
+    "app/api/ai-search/route.js": {
+      "maxDuration": 60
+    },
+    "app/api/social-feeds/route.js": {
+      "maxDuration": 30
     }
   }
 }

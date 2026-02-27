@@ -10,6 +10,7 @@ export async function POST(request){
           return NextResponse.json(parsed);
 
     }catch(err){
-       return NextResponse.json({error: err.message}, {status: 500});
+       console.error("Scrape error:", err);
+       return NextResponse.json({error: "Scraping failed"}, {status: 500});
     }
 }

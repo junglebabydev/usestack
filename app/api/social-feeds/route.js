@@ -33,7 +33,6 @@ async function fetchTwitterViaNitter(product) {
         : `/search/rss?q=${encodeURIComponent(product.name)}`;
 
       const rssUrl = `${instance}${query}`;
-      console.log(`Trying Nitter URL: ${rssUrl}`);
 
       const response = await fetch(rssUrl, {
         headers: { "User-Agent": "Mozilla/5.0" },
@@ -66,7 +65,6 @@ async function fetchTwitterViaNitter(product) {
 
       if (posts.length > 0) return posts;
     } catch (err) {
-      console.log(`Nitter failed at ${instance}:`, err.message);
     }
   }
 
@@ -77,11 +75,17 @@ async function fetchTwitterViaNitter(product) {
 // LinkedIn scraping was removed due to anti-bot protection
 // LinkedIn requires authentication and blocks automated access
 
-// ---------- Supabase client ----------
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// ---------- Supabase client (lazy) ----------
+let _supabase = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+  }
+  return _supabase;
+}
 
 // ---------- API Route ----------
 export async function GET(request) {
@@ -94,8 +98,7 @@ export async function GET(request) {
   }
 
   try {
-    console.log(`Fetching product with ID: ${productId}`);
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await getSupabase()
       .from("products")
       .select("name, twitter_url, linkedin_url")
       .eq("id", productId)
@@ -106,7 +109,6 @@ export async function GET(request) {
       return Response.json({ error: "Product not found" }, { status: 404 });
     }
 
-    console.log(`Found product: ${product.name}`);
 
     let feeds = [];
     if (platform === "twitter") {

@@ -21,11 +21,7 @@ export const authOptions = {
           throw new Error("Please enter email and password");
         }
 
-        // Check against environment variables for demo admin
-        const adminEmail =  "admin@example.com";
-        const adminPassword =  "admin123";
-
-        if (credentials.email === adminEmail && credentials.password === adminPassword) {
+        if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD && credentials.email === process.env.ADMIN_EMAIL && credentials.password === process.env.ADMIN_PASSWORD) {
           return {
             id: "1",
             name: "Admin",
@@ -70,12 +66,10 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role || "user";
-        console.log("JWT Callback - Setting role from user:", user.role);
       }
       if (account) {
         token.provider = account.provider;
       }
-      console.log("JWT Callback - Token role:", token.role);
       return token;
     },
     async session({ session, token }) {
@@ -84,7 +78,6 @@ export const authOptions = {
         session.user.role = token.role;
         session.user.provider = token.provider;
       }
-      console.log("Session Callback - Session user role:", session.user?.role);
       return session;
     },
   },

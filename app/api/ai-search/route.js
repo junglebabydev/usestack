@@ -1,4 +1,3 @@
-import axios from "axios";
 import { supabase } from "@/lib/supabase";
 import { GoogleGenAI } from "@google/genai";
 
@@ -83,24 +82,9 @@ ${query}
 TOOLS CATALOG (use only these tools, ids must match exactly):
 ${toolList}
 `;
-  {/*
-   const response = await axios.post(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      model: "google/gemini-2.5-flash",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      },
-    }
-  );
-  */}
   const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
   const response = await ai.models.generateContent({
-  model: "gemini-2.5-flash",
+  model: "gemini-2.0-flash",
   contents: prompt,
   config,
 });
@@ -128,6 +112,10 @@ function cleanJsonString(str) {
 }
 
 export async function POST(request) {
+  if (!process.env.GEMINI_API_KEY) {
+    return Response.json({ error: "Server configuration error" }, { status: 500 });
+  }
+
   try {
     const {decodedQuery:query} = await request.json();
     if (!query) {
