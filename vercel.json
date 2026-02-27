@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/scrape/route.js": {
+      "maxDuration": 60
+    }
+  }
+}
