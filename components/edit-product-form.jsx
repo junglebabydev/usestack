@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { FolderOpen, Tag, ExternalLink, Save } from "lucide-react";
+import { FolderOpen, Tag, ExternalLink, Save, Upload, X, Loader2 } from "lucide-react";
 
 export default function EditProductForm({ productId }) {
   const { toast } = useToast();
@@ -25,6 +25,10 @@ export default function EditProductForm({ productId }) {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const thumbnailInputRef = useRef(null);
+  const logoInputRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [tagsList, setTagsList] = useState([]);
@@ -142,6 +146,59 @@ export default function EditProductForm({ productId }) {
 
   const handleInputChange = (field, value) => {
     setFormData((p) => ({ ...p, [field]: value }));
+  };
+
+  const handleImageUpload = async (file, field) => {
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, GIF, or WebP image.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const setUploading =
+      field === "tool_thumbnail_url" ? setUploadingThumbnail : setUploadingLogo;
+    const inputRef =
+      field === "tool_thumbnail_url" ? thumbnailInputRef : logoInputRef;
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `tool-images/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(fileName, file, { cacheControl: "3600", upsert: false });
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(fileName);
+
+      setFormData((prev) => ({ ...prev, [field]: urlData.publicUrl }));
+      toast({ title: "Success", description: "Image uploaded successfully!" });
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast({
+        title: "Upload failed",
+        description: err.message || "Failed to upload image.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
   };
 
   const generateSlug = (name) =>
@@ -289,14 +346,109 @@ export default function EditProductForm({ productId }) {
               />
             </div>
             <div>
-              <Label htmlFor="tool_thumbnail_url">Tool Thumbnail URL</Label>
+              <Label>Tool Thumbnail</Label>
+              {formData.tool_thumbnail_url && (
+                <div className="relative w-20 h-20 mt-1 mb-2">
+                  <img
+                    src={formData.tool_thumbnail_url}
+                    alt="Thumbnail preview"
+                    className="w-20 h-20 object-cover rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange("tool_thumbnail_url", "")}
+                    className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  id="tool_thumbnail_url"
+                  placeholder="Paste URL or upload"
+                  value={formData.tool_thumbnail_url}
+                  onChange={(e) =>
+                    handleInputChange("tool_thumbnail_url", e.target.value)
+                  }
+                  className="flex-1"
+                />
+                <input
+                  ref={thumbnailInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file, "tool_thumbnail_url");
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingThumbnail}
+                  onClick={() => thumbnailInputRef.current?.click()}
+                >
+                  {uploadingThumbnail ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <Label>Logo</Label>
+            {formData.logo_url && (
+              <div className="relative w-20 h-20 mt-1 mb-2 inline-block">
+                <img
+                  src={formData.logo_url}
+                  alt="Logo preview"
+                  className="w-20 h-20 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleInputChange("logo_url", "")}
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+            <div className="flex gap-2">
               <Input
-                id="tool_thumbnail_url"
-                value={formData.tool_thumbnail_url}
-                onChange={(e) =>
-                  handleInputChange("tool_thumbnail_url", e.target.value)
-                }
+                id="logo_url"
+                placeholder="Paste URL or upload"
+                value={formData.logo_url}
+                onChange={(e) => handleInputChange("logo_url", e.target.value)}
+                className="flex-1"
               />
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImageUpload(file, "logo_url");
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploadingLogo}
+                onClick={() => logoInputRef.current?.click()}
+              >
+                {uploadingLogo ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+              </Button>
             </div>
           </div>
 
