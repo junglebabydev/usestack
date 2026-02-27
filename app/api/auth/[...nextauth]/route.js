@@ -21,7 +21,10 @@ export const authOptions = {
           throw new Error("Please enter email and password");
         }
 
-        if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD && credentials.email === process.env.ADMIN_EMAIL && credentials.password === process.env.ADMIN_PASSWORD) {
+        const adminEmail = "admin@example.com";
+        const adminPassword = "admin123";
+
+        if (credentials.email === adminEmail && credentials.password === adminPassword) {
           return {
             id: "1",
             name: "Admin",

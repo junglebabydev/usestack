@@ -2,13 +2,6 @@ import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 
 export async function POST(request) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD || !process.env.REPORT_RECIPIENT_EMAIL) {
-    return NextResponse.json(
-      { success: false, error: 'Missing required email configuration environment variables' },
-      { status: 500 }
-    )
-  }
-
   try {
     const body = await request.json()
     const { name, email, message, toolName } = body
@@ -17,8 +10,8 @@ export async function POST(request) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
+        user: 'obase.harsh@gmail.com',
+        pass: 'jits ucfz gzaz enyh'
       },
       tls: {
         rejectUnauthorized: false
@@ -29,8 +22,8 @@ export async function POST(request) {
 
     // Email content
     const mailOptions = {
-      from: process.env.GMAIL_USER,
-      to: process.env.REPORT_RECIPIENT_EMAIL,
+      from: 'obase.harsh@gmail.com',
+      to: 'harshmehta1591@gmail.com',
       subject: `Tool Report: ${toolName || 'Unknown Tool'}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
