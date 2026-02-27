@@ -557,7 +557,7 @@ useEffect(() => {
     if( !data || data.error){
       toast({
         title: "Error",
-        description: "Failed to Load Tool Data, Please Try again",
+        description: data?.error || "Failed to Load Tool Data, Please Try again",
         variant: "destructive",
       });
        setScrapping(false);
