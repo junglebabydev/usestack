@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Eye, Save, Upload, X, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
+import RichTextEditor from "@/components/rich-text-editor";
 
 const CATEGORIES = ["Tool", "Stack", "News"];
 
@@ -207,8 +208,11 @@ export default function EditBlogPage() {
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-gray-700">Content <span className="text-red-500">*</span></label>
-              <textarea name="content" value={form.content} onChange={handleChange} rows={12} className="w-full rounded-md border px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <p className="text-xs text-gray-400">Supports markdown formatting.</p>
+              <RichTextEditor
+                value={form.content}
+                onChange={(html) => setForm((p) => ({ ...p, content: html }))}
+                placeholder="Write your blog post content here..."
+              />
             </div>
           </div>
         </div>

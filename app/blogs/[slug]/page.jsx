@@ -82,44 +82,8 @@ export default function BlogDetailPage() {
     return `${minutes} min read`;
   };
 
-  // Parse content into sections (simple markdown-like parsing)
-  const parseContent = (content) => {
-    if (!content) return [];
-
-    const lines = content.split("\n");
-    const sections = [];
-    let currentSection = null;
-
-    lines.forEach((line) => {
-      const trimmedLine = line.trim();
-
-      if (trimmedLine.startsWith("## ")) {
-        // H2 heading
-        if (currentSection) sections.push(currentSection);
-        currentSection = {
-          type: "h2",
-          title: trimmedLine.replace("## ", ""),
-          content: [],
-        };
-      } else if (trimmedLine.startsWith("# ")) {
-        // H1 heading
-        if (currentSection) sections.push(currentSection);
-        currentSection = {
-          type: "h1",
-          title: trimmedLine.replace("# ", ""),
-          content: [],
-        };
-      } else if (trimmedLine) {
-        if (!currentSection) {
-          currentSection = { type: "paragraph", content: [] };
-        }
-        currentSection.content.push(trimmedLine);
-      }
-    });
-
-    if (currentSection) sections.push(currentSection);
-    return sections;
-  };
+  // Detect whether content is HTML (from rich text editor) or legacy plain text
+  const isHTML = (str) => str && str.trimStart().startsWith("<");
 
   // Share handlers
   const shareOnTwitter = () => {
@@ -191,7 +155,6 @@ export default function BlogDetailPage() {
     );
   }
 
-  const contentSections = parseContent(blog.content);
 
   return (
     <>
@@ -234,61 +197,16 @@ export default function BlogDetailPage() {
               )}
 
               {/* Article Content */}
-              <div className="prose prose-gray max-w-none">
-                {contentSections.map((section, index) => (
-                  <div key={index} className="mb-6">
-                    {section.type === "h1" && (
-                      <>
-                        <h2 className="text-sm font-medium text-gray-500 mb-2">
-                          # {section.title}
-                        </h2>
-                        {section.content.map((para, pIndex) => (
-                          <p
-                            key={pIndex}
-                            className="text-gray-700 leading-relaxed"
-                          >
-                            {para}
-                          </p>
-                        ))}
-                      </>
-                    )}
-                    {section.type === "h2" && (
-                      <>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
-                          {section.title}
-                        </h3>
-                        {section.content.map((para, pIndex) => (
-                          <p
-                            key={pIndex}
-                            className="text-gray-600 leading-relaxed"
-                          >
-                            {para}
-                          </p>
-                        ))}
-                      </>
-                    )}
-                    {section.type === "paragraph" && (
-                      <>
-                        {section.content.map((para, pIndex) => (
-                          <p
-                            key={pIndex}
-                            className="text-gray-700 leading-relaxed"
-                          >
-                            {para}
-                          </p>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                ))}
-
-                {/* If no parsed content, show raw content */}
-                {contentSections.length === 0 && blog.content && (
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {blog.content}
-                  </div>
-                )}
-              </div>
+              {isHTML(blog.content) ? (
+                <div
+                  className="prose prose-gray prose-headings:font-bold prose-a:text-blue-600 prose-blockquote:border-l-blue-400 max-w-none"
+                  dangerouslySetInnerHTML={{ __html: blog.content }}
+                />
+              ) : (
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {blog.content}
+                </div>
+              )}
 
               {/* Tags */}
               {blog.tags && blog.tags.length > 0 && (
