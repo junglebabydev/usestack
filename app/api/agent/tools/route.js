@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { parseToolData } from "@/lib/aiParser";
 import { GoogleGenAI } from "@google/genai";
+import { captureScreenshot } from "@/lib/screenshotter";
 
 function getAdminClient() {
   return createClient(
@@ -154,6 +155,23 @@ export async function POST(request) {
   const mode = body.mode || "manual";
 
   try {
+    // ── MODE: screenshot ──────────────────────────────────────────────────
+    // Server visits the URL, takes a screenshot, Gemini Vision extracts info
+    // Best for visually rich homepages or sites that block scrapers
+    // Body: { mode: "screenshot", url: "https://cursor.com" }
+    if (mode === "screenshot") {
+      if (!body.url) {
+        return NextResponse.json({ error: "url is required for mode: screenshot" }, { status: 400 });
+      }
+      const { base64, mimeType } = await captureScreenshot(body.url);
+      const parsed = await parseToolFromImage(null, base64, mimeType);
+      // Fill in the website_url from the provided URL if Vision didn't catch it
+      if (!parsed.website_url) parsed.website_url = body.url;
+      const merged = { ...parsed, ...body.overrides };
+      const product = await insertProduct(supabase, merged);
+      return NextResponse.json({ success: true, tool: product, parsed: merged }, { status: 201 });
+    }
+
     // ── MODE: url ─────────────────────────────────────────────────────────
     // Pass a tool URL; scraper + AI fills in all fields automatically
     // Body: { mode: "url", url: "https://cursor.com" }
