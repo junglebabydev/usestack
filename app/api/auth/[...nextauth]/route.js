@@ -64,14 +64,25 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, account, trigger }) {
-      // Initial sign in
+    async jwt({ token, user, account }) {
+      // Initial sign in — seed token from the authorized user object
       if (user) {
         token.id = user.id;
         token.role = user.role || "user";
+        token.email = user.email;
       }
       if (account) {
         token.provider = account.provider;
+      }
+      // Re-fetch role from DB on every token refresh so DB changes
+      // (e.g. promoting an agent) take effect without requiring re-login.
+      if (token.id && token.id !== "1") {
+        const { data } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", token.id)
+          .single();
+        if (data?.role) token.role = data.role;
       }
       return token;
     },

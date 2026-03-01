@@ -13,17 +13,12 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  // Redirect non-admin users
+  // Redirect unauthenticated users to login
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session) {
       router.push("/login?callbackUrl=/admin");
-      return;
-    }
-    
-    if (session.user?.role !== "admin") {
-      router.push("/");
     }
   }, [session, status, router]);
 
@@ -45,7 +40,7 @@ export default function AdminLayout({ children }) {
 
   // Show access denied only if we're sure the user is not an admin
   // (status is authenticated but role is not admin, or status is unauthenticated)
-  if (status === "unauthenticated" || (status === "authenticated" && session?.user?.role !== "admin")) {
+  if (status === "unauthenticated" || (status === "authenticated" && !["admin", "agent"].includes(session?.user?.role))) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center">
@@ -69,6 +64,9 @@ export default function AdminLayout({ children }) {
         <AdminSidebar
           isCollapsed={isCollapsed}
           setIsCollapsed={setIsCollapsed}
+          userRole={session.user?.role}
+          userName={session.user?.name}
+          userEmail={session.user?.email}
         />
       </div>
 
@@ -80,7 +78,13 @@ export default function AdminLayout({ children }) {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <div className="fixed left-0 top-0 h-full w-64">
-            <AdminSidebar isCollapsed={false} setIsCollapsed={() => {}} />
+            <AdminSidebar
+              isCollapsed={false}
+              setIsCollapsed={() => {}}
+              userRole={session.user?.role}
+              userName={session.user?.name}
+              userEmail={session.user?.email}
+            />
           </div>
         </div>
       )}
