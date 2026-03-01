@@ -1,17 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus, MoreVertical } from "lucide-react";
+import { Search, Plus, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function Page() {
   const router = useRouter();
-  const [blogs, setBlogs] = useState([]); 
+  const [blogs, setBlogs] = useState([]);
   const [search, setSearch] = useState("");
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     fetchBlogs();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpenMenuId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   async function fetchBlogs() {
@@ -34,16 +47,27 @@ export default function Page() {
       return;
     }
 
-    const formattedBlogs = data.map((blog) => ({
-      id: blog.id,
-      title: blog.title,
-      status: blog.status,
-      created_at: blog.created_at,
-      author: blog.users?.name ?? "—",
-      users: blog.users,
-    }));
+    setBlogs(
+      data.map((blog) => ({
+        id: blog.id,
+        title: blog.title,
+        status: blog.status,
+        created_at: blog.created_at,
+        author: blog.users?.name ?? "—",
+      }))
+    );
+  }
 
-    setBlogs(formattedBlogs);
+  async function handleDelete(blog) {
+    if (!confirm(`Delete "${blog.title}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("blogs").delete().eq("id", blog.id);
+    if (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete blog post.");
+    } else {
+      setBlogs((prev) => prev.filter((b) => b.id !== blog.id));
+    }
+    setOpenMenuId(null);
   }
 
   const filteredBlogs = blogs.filter((blog) =>
@@ -56,11 +80,8 @@ export default function Page() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Blog Posts</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your blog content
-          </p>
+          <p className="text-sm text-muted-foreground">Manage your blog content</p>
         </div>
-
         <button
           onClick={() => router.push("/admin/blogs/new")}
           className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
@@ -96,14 +117,10 @@ export default function Page() {
 
           <tbody>
             {filteredBlogs.map((blog) => (
-              <tr key={blog.id} className="border-b last:border-none">
-                <td className="px-4 py-3 font-medium">
-                  {blog.title}
-                </td>
+              <tr key={blog.id} className="border-b last:border-none hover:bg-muted/30">
+                <td className="px-4 py-3 font-medium">{blog.title}</td>
 
-                <td className="px-4 py-3">
-                  {blog.author}
-                </td>
+                <td className="px-4 py-3">{blog.author}</td>
 
                 <td className="px-4 py-3">
                   <span
@@ -122,17 +139,41 @@ export default function Page() {
                 </td>
 
                 <td className="px-4 py-3 text-right">
-                  <MoreVertical className="w-4 h-4 text-muted-foreground cursor-pointer" />
+                  <div className="relative inline-block" ref={openMenuId === blog.id ? menuRef : null}>
+                    <button
+                      onClick={() => setOpenMenuId(openMenuId === blog.id ? null : blog.id)}
+                      className="p-1 rounded hover:bg-muted"
+                    >
+                      <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                    </button>
+
+                    {openMenuId === blog.id && (
+                      <div className="absolute right-0 z-10 mt-1 w-36 rounded-md border bg-white shadow-lg">
+                        <button
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            router.push(`/admin/blogs/${blog.id}/edit`);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-muted"
+                        >
+                          <Pencil size={14} /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(blog)}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
 
             {filteredBlogs.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-6 text-center text-muted-foreground"
-                >
+                <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
                   No blogs found
                 </td>
               </tr>
